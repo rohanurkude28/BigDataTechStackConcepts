@@ -82,3 +82,30 @@ val addNumber = (i: Int) => {
 }
 println(addNumber(10))
 ```
+
+
+### Function Composition
+
+- Given two functions, f: X -> Y and g: Y -> Z, we can define their composition as a function h = g ∘ f : X -> Z, where h(x) = g(f(x))
+- Function composition is always associative: f ∘ (g ∘ h) = (f ∘ g) ∘ h.
+- The trait Function1[T1, R] defines methods to compose functions.
+- There are two ways to compose such functions, according to Function1: compose and andThen.
+- compose is g(f(x)) and andThen is f(g(x)), ordering of apply is different
+
+```scala
+    val add1 = (i: Int) => i + 1
+    val double = (i: Int) => i * 2
+    val addComposeDouble =  double compose add1
+    println(addComposeDouble(1))
+
+    val doubleAndThenAdd = add1 andThen double
+    println(doubleAndThenAdd(1))
+```
+- .tupled is used in case of multiple parameters (Present inside Function trait)
+
+```scala
+def tupled: Tuple2[T1, T2] => R = {
+  case Tuple2(x1, x2) => apply(x1, x2)
+}
+```
+
