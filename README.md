@@ -172,7 +172,14 @@ Currying is converting a single function of n arguments into n functions with a 
 ```scala
 val curriedSum: Int => Int => Int = x => y => x + y
 println(curriedSum(1)(2))
+
+def sum(x: Int)(y: Int): Int = x + y
+def curriedSum1(x: Int)(y: Int): Int = x + y
+val curriedSum2: Int => Int => Int = (sum _).curried
+val curriedSum3: Int => Int => Int = sum
 ```
+
+
 
 ### Partially Applied Function
 
@@ -185,16 +192,51 @@ def log(time: Long, message: String) = {
 val logVal = log(System.nanoTime(),_)
 ```
 
-### Partially Function
+### Partial Function
 
 - A partial function is a function that does not provide an answer for every possible input value it can be given.
 - PartialFunction is a trait
 
 ```scala
 trait PartialFunction[-A, +B] extends (A) => B
+
+val squareRoot: PartialFunction[Double, Double] = {
+   def apply(x: Double) = Math.sqrt(x)
+   def isDefinedAt(x: Double) = x >= 0
+}
+
+
+type Validator = PartialFunction[Int, Int]
+
+val negativeToPositive = new Validator {
+   override def isDefinedAt(x: Int) = x < 0
+   override def apply(x: Int) =Math.abs(x)
+}
+
+val positiveToNegative = new Validator {
+   override def isDefinedAt(x: Int) = x > 0
+   override def apply(x: Int) = -1 * x
+}
+
+val default = new Validator {
+   override def isDefinedAt(x: Int): Boolean = true
+
+   override def apply(x: Int) = 0
+}
+
+val numVal = negativeToPositive
+        .orElse(positiveToNegative)
+        .orElse(default)
+
+
+//Collect uses partial function instead of predicate in filter
+val parseRange: PartialFunction[Int, Int] = {
+   case x: Int if x > 10 => x + 1
+}
+List(15, 3, "aString") collect { parseRange }
 ```
 
-### Anonymous Function
+### Anonymous Function [Expansion](#expansion-of-function-values)
 
 - Anonymous function in Scala — also known as a function literal using which you can pass it into a method that takes a function, or to assign it to a variable.
 
@@ -594,10 +636,10 @@ def closuresPatternMatching(list: List[Any]): List[Any] = {
 - The default Scala Map is immutable. To use a mutable Map, we use the scala.collection.mutable.Map class.
 - We can't change existing data in immutable Map, we need to assign it to new val
 
-Adding element : +/put
-Removing element : -
-Concatenating Maps : ++ Operator
-Get element : map(key) (.apply) returns element and gives exception if it doesn't exist, map.get(key) return Option[element]
+- Adding element : +/put 
+- Removing element : -
+- Concatenating Maps : ++ Operator 
+- Get element : map(key) (.apply) returns element and gives exception if it doesn't exist, map.get(key) return Option[element]
 
 ### Set
 
@@ -606,10 +648,10 @@ Get element : map(key) (.apply) returns element and gives exception if it doesn'
 - We can't change existing data in immutable Set, we need to assign it to new val
 - **Set intersect is better than list on list filter when it comes to performance, For Map we can use .keySet intersect and .map values**
 
-Adding element : +/put
-Removing element : -
-Concatenating Maps : ++ Operator
-Get element : set(key) (.apply) returns element and gives exception if it doesn't exist, set.get(key) return Option[element]
+- Adding element : +/put 
+- Removing element : - 
+- Concatenating Maps : ++ Operator 
+- Get element : set(key) (.apply) returns element and gives exception if it doesn't exist, set.get(key) return Option[element]
 
 ### Tuples
 
@@ -718,3 +760,93 @@ List("a", "b", "c").withFilter(_ == "b").withFilter(_ == "c").map(x => x)
 ```scala
 List("a", "b", "c").view.filter(_ == "b").filter(_ == "c").map(x => x) //scala.collection.SeqView[String,Seq[_]] = SeqViewFFM(...)
 ```
+
+
+## Monads
+
+- Monads are nothing more than a mechanism to sequence computations around values augmented with some additional feature.
+- Such features are called effects.
+
+- [Declutter Your Code With Monadic Design](https://www.youtube.com/watch?v=Mw_Jnn_Y5iA)
+- [A Monads Approach](https://www.youtube.com/watch?v=d-dy1x33moA)
+- [Monads Blog](https://blog.rockthejvm.com/monads/)
+
+```scala
+for(x <- c1; y <- c2; z <-c3) {...}          c1.foreach(x => c2.foreach(y => c3.foreach(z => {...})))
+for(x <- c1; y <- c2; z <- c3) yield {...}   c1.flatMap(x => c2.flatMap(y => c3.map(z => {...})))
+for(x <- c; if cond) yield {...}             c.withFilter(x => cond).map(x => {...})
+for(x <- c; y = ...) yield {...}             c.map(x => (x, ...)).map((x,y) => {...})
+for {
+   sl <- l
+   el <- sl
+   if el > 0
+} yield el.toString.length                   l.flatMap(sl => sl.filter(el => el > 0).map(el => el.toString.length))
+```
+
+
+````scala
+
+case class SafeValue[+T](private val internalValue: T) { //"constructor" = pure or Unit
+  def get: T = synchronized {
+    // note: this is just a simplified example and not 100% foolproof
+    // thread safety is a very complicated topic and I don't want to digress there
+    // replace the logic here with code that might be interesting for any reason
+    internalValue
+  }
+   
+   def flatMap[S](transformer:T => SafeValue[S]) : SafeValue[S] = synchronized{ //bind or flatMap
+      transformer(internalValue)
+   }
+}
+
+//Sequential ETW
+val safeString: SafeValue[String] = gimmeSafeValue("Scala is awesome") // obtained from elsewhere
+//Extract
+val string = safeString.get
+//Transform
+val upperString = string.toUpperCase()
+//Wrap
+val upperSafeString = SafeValue(upperString)
+
+//One Line ETW / Compressed
+val upperSafeString2 = safeString.transform(s => SafeValue(s.toUpperCase))
+````
+
+ETW
+1. the ability to wrap a value into my (more interesting) type - in OO terms this is just a "constructor"; we call this _unit_, or _pure_, or _apply_
+2. a function that transforms a wrapper into another wrapper (perhaps of another type) in the same style as the above - we usually call this _bind_ or _flatMap_
+
+
+```scala
+case class Person(firstName: String, lastName: String) {
+    // you have a requirement that these fields must not be nulls
+    assert(firstName != null && lastName != null)
+}
+
+// Java Style - messy, too much nesting
+def getPerson(firstName: String, lastName: String): Person =
+  if (firstName != null) {
+    if (lastName != null) {
+      Person(firstName.capitalize, lastName.capitalize)
+    } else {
+      null
+    }
+  } else {
+    null
+  }
+
+//
+def getPersonBetter(firstName: String, lastName: String): Option[Person] =
+   Option(firstName).flatMap { fName =>
+      Option(lastName).flatMap { lName =>
+         Option(Person(fName, lName))
+      }
+   }
+
+//for comprehension
+def getPersonFor(firstName: String, lastName: String): Option[Person] = for {
+   fName <- Option(firstName)
+   lName <- Option(lastName)
+} yield Person(fName, lName)
+```
+
