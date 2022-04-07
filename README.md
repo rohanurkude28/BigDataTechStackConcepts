@@ -3,6 +3,7 @@
 - [Scala Style Guide : ](ScalaStyleGuide.md)
 - [Scala Best Practices : ](ScalaBestPractices.md)
 - [Parallel Programming : ](ParallelProgramming.md)
+- [Does Scala's pattern matching violate the Open/Closed Principle](https://stackoverflow.com/a/564498)
 
 Underneath Code can be viewed with below commands
 ```scala
@@ -37,6 +38,11 @@ javap className //How equivalent Java code looks after compilation
     * [Extractors](#extractors)
     * [Others](#others)
 6. [Collections](#collections)
+    * [List](#list)
+    * [Map](#map)
+    * [Set](#set)
+    * [Tuples](#tuples)
+7. [Functional Combinators](#functional-combinators)
    
 ## <a name='PureObjectOrientation'>Pure Object Orientation (Objects are everywhere)</a>
 
@@ -531,7 +537,8 @@ def extractors(person: Any): String = {
 }
 ```
 
-### Other
+### Others
+
 **Catch Blocks**
 
 ```scala
@@ -559,3 +566,155 @@ def closuresPatternMatching(list: List[Any]): List[Any] = {
 ## <a name='collections'>Collections</a>
 
 ![](sections/resources/CollectionHierarchy.png)
+
+- The Traversable trait allows us to traverse an entire collection. It’s a base trait for all other collections. It implements the common behavior in terms of a foreach method.
+- The Iterable trait is the next trait from the top of the hierarchy and a base trait for iterable collections. It defines an iterator which allows us to loop through a collection’s elements one at a time.
+
+- [Performance Characteristics](https://docs.scala-lang.org/overviews/collections-2.13/performance-characteristics.html)
+- [Performance Benchmarks](https://docs.google.com/presentation/d/13SAn0Ru9g77T1EInCZ-7HVbEcqIMVQstVgjZFiBB4bA/present?slide=id.i135)
+- [Scala’s immutable collections can be slow as a snail](https://hussachai.medium.com/scalas-immutable-collections-can-be-slow-as-a-snail-da6fc24bc688)
+- [var List vs val MutableList](https://stackoverflow.com/a/11002321)
+- [val-mutable versus var-immutable](https://stackoverflow.com/a/11386867)
+- [Java vs Scala Collection conversion](https://stackoverflow.com/a/8302493)
+
+### List
+
+- Scala lists internally represent an immutable linked list. 
+- It maintains the order of elements and can contain duplicates as well.
+- This class is optimal for last-in-first-out (LIFO), stack-like access patterns.
+- It also implements structural sharing of the tail list. This means that many operations have either a constant memory footprint or no memory footprint at all.
+- This List class comes with two implementing case classes, scala.Nil and scala.::, that implement the abstract members isEmpty, head, and tail.
+
+- [Why are Scala's `Lists` implemented as linked lists and not arrays](https://stackoverflow.com/questions/5130097/why-are-scalas-lists-implemented-as-linked-lists)
+- [Why is appending to a list bad?](https://stackoverflow.com/a/1320171) (Prepend O(1) vs Append O(n))
+
+### Map
+
+- Scala Map is a collection of key/value pairs, where all the keys must be unique.
+- The default Scala Map is immutable. To use a mutable Map, we use the scala.collection.mutable.Map class.
+- We can't change existing data in immutable Map, we need to assign it to new val
+
+Adding element : +/put
+Removing element : -
+Concatenating Maps : ++ Operator
+Get element : map(key) (.apply) returns element and gives exception if it doesn't exist, map.get(key) return Option[element]
+
+### Set
+
+- Scala Set is a collection of unique elements.
+- By default, Scala uses immutable sets. But if you want, you can import the scala.collection.mutable.Set class
+- We can't change existing data in immutable Set, we need to assign it to new val
+- **Set intersect is better than list on list filter when it comes to performance, For Map we can use .keySet intersect and .map values**
+
+Adding element : +/put
+Removing element : -
+Concatenating Maps : ++ Operator
+Get element : set(key) (.apply) returns element and gives exception if it doesn't exist, set.get(key) return Option[element]
+
+### Tuples
+
+- It is a collection of heterogeneous types of objects that is different types of objects which combine a fixed number of items together.
+- Tuple2 to Tuple22
+- Case classes have named elements. The names can improve the readability of some kinds of code.
+
+## Functional Combinators
+
+- [Reason to prefer `filter+map` over `collect`?](https://stackoverflow.com/a/36962581) Partial functions are slower than predicates
+- [Filter vs withFilter](https://www.baeldung.com/scala/filter-vs-withfilter)
+
+### map
+Evaluates a function over each element in the list, returning a list with the same number of elements.
+```scala
+numList.map((i: Int) => i * 2) //Return list of Numbers
+```
+
+### foreach
+Foreach is like map but returns nothing. foreach is intended for side-effects only.
+```scala
+numList.foreach((i: Int) => i * 2) //Returns Unit
+```
+
+### filter
+Removes any elements where the function you pass in evaluates to false. Functions that return a Boolean are often called predicate functions.
+```scala
+def isEven(i: Int): Boolean = i % 2 == 0
+
+numList.filter(isEven) //Return list of Even Numbers
+```
+
+### zip 
+Zip aggregates the contents of two lists into a single list of pairs.
+```scala
+List(1, 2, 3).zip(List("a", "b", "c")) //List[(Int, String)] = List((1,a), (2,b), (3,c))
+```
+
+### zipWithIndex
+```scala
+List("a", "b", "c").zipWithIndex //List[(String, Int)] = List((a,0), (b,1), (c,2))
+```
+
+### partition
+partition splits a list based on where it falls with respect to a predicate function.
+```scala
+numList.partition(_ % 2 == 0) //(List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
+```
+
+### find
+find returns the first element of a collection that matches a predicate function.
+```scala
+numList.find((i: Int) => i > 5) //Option[Int] = Some(6)
+```
+
+### drop & dropWhile
+drop drops the first i elements
+```scala
+numList.drop(5) //List[Int] = List(6, 7, 8, 9, 10)
+```
+
+dropWhile removes the first element that match a predicate function. For example, if we dropWhile odd numbers from our list of numbers, 1 gets dropped (but not 3 which is “shielded” by 2).
+```scala
+numList.dropWhile(_ % 2 != 0) //List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
+```
+
+### foldLeft
+uses accumulator
+```scala
+numList.foldLeft(0)((m: Int, n: Int) => m + n)
+```
+
+### flatten
+flatten collapses one level of nested structure.
+```scala
+List(List(1, 2), List(3, 4)).flatten //List[Int] = List(1, 2, 3, 4)
+```
+
+### flatMap
+flatMap is a frequently used combinator that combines mapping and flattening. flatMap takes a function that works on the nested lists and then concatenates the results back together.
+```scala
+List(List(1, 2), List(3, 4)).flatMap(x => x.map(_ * 2)) //List[Int] = List(2, 4, 6, 8)
+```
+
+### collect 
+The collect method takes a Partial Function as its parameter and applies it to all the elements in the collection to create a new collection which satisfies the Partial Function.
+```scala
+numList.collect{ case num if num/2 == 0 => (num, num+1) }.toMap
+```
+
+### withFilter
+- returns FilterMonadic[A, Repr]
+- When we have to provide more than one filtering operation, it’s better from a performance point of view to use withFilter.
+- If we only want to apply a single predicate without any mapping on the result, we should use the filter method to provide us the collection directly.
+
+```scala
+List("a", "b", "c").withFilter(_ == "b").withFilter(_ == "c").map(x => x)
+
+```
+
+### view
+
+- View produces a lazy collection, so that calls to e.g. filter do not evaluate every element of the collection. Elements are only evaluated once they are explicitly accessed.
+- Better for .take /.dropWhile etc operations
+
+```scala
+List("a", "b", "c").view.filter(_ == "b").filter(_ == "c").map(x => x) //scala.collection.SeqView[String,Seq[_]] = SeqViewFFM(...)
+```
