@@ -14,12 +14,21 @@ javap className //How equivalent Java code looks after compilation
 
 ## <a name='TOC'>Table of Contents</a>
 
-1. [Objects are Everwhere](##PureObjectOrientation)
-2. [Functions](##Functions)
-3. [Polymorphism](##Polymorphism)
-4. [Variances in Scala](##Variances)
-5. [Pattern Matching](##PatternMatching)
-6. [Pattern Matching](##PatternMatching)
+1. [Objects are Everwhere](#pure-object-orientation-objects-are-everywhere)
+    * [Functions as Objects](#functions-as-objects)
+    * [Expansion of Function Values](#expansion-of-function-values)
+    * [Expansion of Function Calls](#expansion-of-function-calls)
+    * [Functions and Methods](#functions-and-methods)
+2. [Functions](#functions)
+    * [Higher Order Functions in Scala](#higher-order-functions-in-scala)
+    * [Function Currying](#function-currying)
+    * [Partially Applied Function](#partially-applied-function)
+    * [Anonymous Function](#anonymous-function)
+    * [Closure](#closure)
+    * [Function Composition](#function-composition)
+3. [Polymorphism](#polymorphism-in-scala)
+4. [Variances in Scala](#variances-in-scala)
+5. [Pattern Matching](##pattern-matching)
    
 ## <a name='PureObjectOrientation'>Pure Object Orientation (Objects are everywhere)</a>
 
