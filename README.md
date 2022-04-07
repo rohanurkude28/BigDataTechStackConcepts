@@ -12,7 +12,16 @@ javap className //How equivalent Java code looks after compilation
 
 ```
 
-## Pure Object Orientation (Objects are everywhere)
+## <a name='TOC'>Table of Contents</a>
+
+1. [Objects are Everwhere](##PureObjectOrientation)
+2. [Functions](##Functions)
+3. [Polymorphism](##Polymorphism)
+4. [Variances in Scala](##Variances)
+5. [Pattern Matching](##PatternMatching)
+6. [Pattern Matching](##PatternMatching)
+   
+## <a name='PureObjectOrientation'>Pure Object Orientation (Objects are everywhere)</a>
 
 In Java, there is a difference between an expression and a statement.
 
@@ -112,7 +121,7 @@ def f(x: Int): Boolean = ...
 
 is not itself a function value; but if the name of a method is used in a place where a function type is expected, it's converted automatically to the function value.
 
-## Functions
+## <a name='Functions'>Functions</a>
 
 Functions are first-class citizens
 
@@ -213,7 +222,7 @@ def tupled: Tuple2[T1, T2] => R = {
 }
 ```
 
-## Polymorphism in Scala
+## <a name='Polymorphism'>Polymorphism in Scala</a>
 
 ### Parametric Polymorphism
 
@@ -287,7 +296,7 @@ while (count < THRESHOLD && Z.magnitude() < 2.0) {
 This code determines whether a complex number C
 
 
-## Variances in Scala
+## <a name='Variances'>Variances in Scala</a>
 
 Variance is the interconnection of subtyping relationship between complex types and their component types.
 There are three types of variance: covariance, contravariance, and invariance.
@@ -341,7 +350,7 @@ case object Rectangle extends Parallelogram
 val suite: Shape[Parallelogram] = new Shape[Parallelogram](List(new Parallelogram))
 ```
 
-## Pattern Matching
+## <a name='PatternMatching'>Pattern Matching</a>
 
 ### Patterns in Match Expression
 
