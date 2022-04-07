@@ -215,19 +215,19 @@ def tupled: Tuple2[T1, T2] => R = {
 
 We can easily recognize parametrically polymorphic functions in Scala by the presence of one or more type parameters delimited by square brackets in the method signature — they enable us to apply the same logic to different data types.
 
-The Naive Solution : Below works well for integer arrays but is not reusable for other types:
+**The Naive Solution** : Below works well for integer arrays but is not reusable for other types:
 
 ```scala
 def pairWiseReverseInt(xs: List[Int]): List[Int] = xs.grouped(2).flatMap(_.reverse).toList
 ```
 
-DRY Solution : With parametric polymorphism, the logic remains the same for all the different types
+**DRY Solution** : With parametric polymorphism, the logic remains the same for all the different types
 
 ```scala
 def pairWiseReverse[A](xs:List[A]): List[A] = xs.grouped(2).flatMap(_.reverse).toList
 ```
 
-Subtype Polymorphism : The key concept in subtype polymorphism is substitutability as defined in the Liskov substitution principle
+**Subtype Polymorphism** : The key concept in subtype polymorphism is substitutability as defined in the Liskov substitution principle
 
 ```scala
 trait Shape {
@@ -243,16 +243,16 @@ case class Circle(radius: Double) extends Shape {
 def printArea[T <: Shape](shape: T): Double = (math.floor(shape.getArea) * 100)/100
 ```
 
-Ad-Hoc Polymorphism : The compiler switches between different code implementations depending on the type of input a method receives.
+**Ad-Hoc Polymorphism** : The compiler switches between different code implementations depending on the type of input a method receives.
 
-When calling **.sorted** method on list scala knows via **Method Overloading** to call which function, but this doesn't apply to custom classes, 
+**Method Overloading** : When calling **.sorted** method on list scala knows via Method Overloading to call which function, but this doesn't apply to custom classes, 
 where in we have to provide an implementation of Ordering type.
 
 ```scala
     val ord: Ordering[StudentId] = (x, y) => x.id.compareTo(y.id)
 ```
 
-**Operator Overloading** Scala supports operator overloading, which means that the meaning of operators (such as * and +) may be defined for arbitrary types.
+**Operator Overloading** : Scala supports operator overloading, which means that the meaning of operators (such as * and +) may be defined for arbitrary types.
 
 ```scala
 class Complex(val real : Double, val imag : Double) {
