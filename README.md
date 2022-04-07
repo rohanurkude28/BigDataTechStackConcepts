@@ -855,3 +855,34 @@ def getPersonFor(firstName: String, lastName: String): Option[Person] = for {
 ```scala
 numbers.flatMap(incrementer).flatMap(doubler) == numbers.flatMap(x => incrementer(x).flatMap(doubler))
 ```
+
+## Functors
+
+```scala
+def do10xList(list: List[Int]): List[Int] = list.map(_ * 10)
+def do10xOption(option: Option[Int]): Option[Int] = option.map(_ * 10)
+def do10xTry(attempt: Try[Int]): Try[Int] = attempt.map(_ * 10)
+```
+
+- In case we want to add one more type for map , we would have to duplicate the code above, which is against DRY principle.Here Functors comes for our rescue.
+- Functors embody the concept of “mappable” data structures.
+- We use Functors to generalize our APIs, so that we don’t have to write the same transformations on different data structures.
+- 
+
+```scala
+trait Functor[C[_]] {
+  def map[A, B](container: C[A])(f: A => B): C[B]
+}
+
+//Scala 2 we would have used implicits 
+given listFunctor as Functor[List] {
+   override def map[A, B](container: List[A])(f: A => B) = container.map(f)
+}
+
+def do10x[C[_]](container: C[Int])(using functor: Functor[C]) = functor.map(container)(_ * 10)
+
+do10x(List(1,2,3))   //Injection of functor do10x(List(1,2,3))(using listFunctor) 
+```
+
+
+[More about using and given in Scala3](https://www.youtube.com/watch?v=fStjOA0Wep4)
