@@ -44,6 +44,7 @@ javap className //How equivalent Java code looks after compilation
     * [Tuples](#tuples)
 7. [Functional Combinators](#functional-combinators)
 8. [Monads](#monads)
+9. [Functors](#functors)
    
 ## <a name='PureObjectOrientation'>Pure Object Orientation (Objects are everywhere)</a>
 
