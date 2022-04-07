@@ -283,3 +283,244 @@ while (count < THRESHOLD && Z.magnitude() < 2.0) {
 This code determines whether a complex number C
 
 
+## Variances in Scala
+
+Variance is the interconnection of subtyping relationship between complex types and their component types.
+There are three types of variance: covariance, contravariance, and invariance.
+
+### Covariance F[+T]
+
+We say that a type constructor F[_] is covariant if B is a subtype of type A and F[B] is a subtype of type F[A].
+eg: If S is subtype of T then List[S] is a subtype of List[T].
+
+Covariance is type-safe because it reflects the standard behavior of subtyping.
+
+```scala
+class Shape[+T](polygon: T)
+sealed trait Polygon
+case object Parallelogram extends Polygon
+
+val shape: Shape[Polygon] = new Shape[Parallelogram](List(new Parallelogram))
+```
+
+In Scala : List[T], Option[T], and Try[T].
+
+### Contravariance F[-T]
+
+We say that a type constructor F[_] is contravariant if B is a subtype of type A and F[A] is a subtype of type F[B]. This relation is precisely the contrary of the covariance relation.
+eg: If S is subtype of T then List[T] is a subtype of List[S].
+
+
+```scala
+trait Vet[-T] { // we can also insert an optional -T <: Animal here if we wanted to impose a type constraint
+  def heal(animal: T): Boolean
+}
+
+val myDog = new Dog("Buddy")
+val myVet: Vet[Dog] = new Vet[Animal] { ... }
+myVet.heal(myDog)
+```
+
+We're declaring a Vet[Dog], and instead we have a Vet[Animal], with the meaning that the vet can heal any animal; therefore, it can work on my dog as well. The code will compile, our buddy will live, and we would be happy.
+
+### Invariance F[_]
+
+We say that a type constructor F[_] is invariant if any subtype relationship between types A and B is not preserved in any order between types F[A] and F[B].
+
+eg: If S is subtype of T then List[S] and List[T] don’t have inheritance relationship or sub-typing. That means both are unrelated.
+
+```scala
+class Shape[T](polygon: T)
+case object Parallelogram
+case object Rectangle extends Parallelogram
+
+val suite: Shape[Parallelogram] = new Shape[Parallelogram](List(new Parallelogram))
+```
+
+## Pattern Matching
+
+### Patterns in Match Expression
+
+**Case Classes** 
+
+```scala
+def caseClassesPatternMatching(animal: Animal): String = {
+  animal match {
+    case Mammal(name, fromSea) => s"I'm a $name, a kind of mammal. Am I from the sea? $fromSea"
+    case Bird(name) => s"I'm a $name, a kind of bird"
+    case _ => "I'm an unknown animal"
+  }
+}
+```
+
+**Constants**
+
+```scala
+def constantsPatternMatching(constant: Any): String = {
+  constant match {
+    case 0 => "I'm equal to zero"
+    case 4.5d => "I'm a double"
+    case false => "I'm the contrary of true"
+    case _ => s"I'm unknown and equal to $constant"
+  }
+}
+```
+
+**Sequences**
+
+```scala
+def sequencesPatternMatching(sequence: Any): String = {
+  sequence match {
+    case List(singleElement) => s"I'm a list with one element: $singleElement"
+    case List(_, _*) => s"I'm a list with one or multiple elements: sequence"
+    case Vector(1, 2, _*) => s"I'm a vector: $sequence"
+    case _ => s"I'm an unrecognized sequence. My value: $sequence"
+  }
+}
+```
+
+**Tuples**
+
+```scala
+def tuplesPatternMatching(tuple: Any): String = {
+  tuple match {
+    case (first, second) => s"I'm a tuple with two elements: $first & $second"
+    case (first, second, third) => s"I'm a tuple with three elements: $first & $second & $third"
+    case _ => s"Unrecognized pattern. My value: $tuple"
+  }
+}
+```
+
+**Typed Patterns**
+
+```scala
+def typedPatternMatching(any: Any): String = {
+  any match {
+    case string: String => s"I'm a string. My value: $string"
+    case integer: Int => s"I'm an integer. My value: $integer"
+    case _ => s"I'm from an unknown type. My value: $any"
+  }
+}
+```
+
+**Regex Patterns**
+
+```scala
+def regexPatterns(toMatch: String): String = {
+  val numeric = """([0-9]+)""".r
+  val alphabetic = """([a-zA-Z]+)""".r
+  val alphanumeric = """([a-zA-Z0-9]+)""".r
+
+  toMatch match {
+    case numeric(value) => s"I'm a numeric with value $value"
+    case alphabetic(value) => s"I'm an alphabetic with value $value"
+    case alphanumeric(value) => s"I'm an alphanumeric with value $value"
+    case _ => s"I contain other characters than alphanumerics. My value $toMatch"
+  }
+}
+```
+
+**Options: Some<T> and None**
+
+```scala
+def optionsPatternMatching(option: Option[String]): String = {
+  option match {
+    case Some(value) => s"I'm not an empty option. Value $value"
+    case None => "I'm an empty option"
+  }
+}
+```
+
+**Variable Binding**
+
+```scala
+def matchType(x: Any): String = x match {
+  //case x: List(1, _*) => s"$x"          // doesn't compile
+  case x @ List(1, _*) => s"$x"           // works; prints the list
+  //case Some(_) => "got a Some"          // works, but can't access the Some
+  //case Some(x) => s"$x"                 // works, returns "foo"
+  case x @ Some(_) => s"$x"               // works, returns "Some(foo)"
+  case p @ Person(first, "Doe") => s"$p"  // works, returns "Person(John,Doe)"
+}
+
+println(matchType(List(1,2,3)))             // prints "List(1, 2, 3)"
+println(matchType(Some("foo")))             // prints "Some(foo)"
+println(matchType(Person("John", "Doe")))   // prints "Person(John,Doe)"
+```
+
+**Pattern Guards**
+
+```scala
+def patternGuards(toMatch: Any, maxLength: Int): String = {
+  toMatch match {
+    case list: List[Any] if (list.size <= maxLength) => "List is of acceptable size"
+    case list: List[Any] => "List has not an acceptable size"
+    case string: String if (string.length <= maxLength) => "String is of acceptable size"
+    case string: String => "String has not an acceptable size"
+    case _ => "Input is neither a List nor a String"
+  }
+}
+```
+
+**Sealed Classes** A sealed class is a superclass that is aware of every single class extending it
+
+```scala
+sealed trait Shape
+case class Square(height: Int, width: Int) extends Shape
+case class Circle(radius: Int) extends Shape
+case object Point extends Shape
+
+
+def matchShape(shape: Shape): String = shape match {
+    case Square(height, width) => "It's a square"
+    case Circle(radius)        => "It's a circle"
+    //no case for Point because it would cause a compiler warning. Scala will check at compile-time that all cases are 'exhaustively matched'
+}
+```
+
+**Extractors** Extractor objects are objects containing a method called unapply. This method is executed when matching against a pattern is successful.
+
+
+```scala
+object Person {
+  def apply(fullName: String) = fullName
+
+  def unapply(fullName: String): Option[String] = {
+    if (!fullName.isEmpty)
+      Some(fullName.replaceAll("(?<=\\w)(\\w+)", "."))
+    else
+      None
+  }
+}
+
+def extractors(person: Any): String = {
+  person match {
+    case Person(initials) => s"My initials are $initials"
+    case _ => "Could not extract initials"
+  }
+}
+```
+
+
+**Catch Blocks**
+
+```scala
+def catchBlocksPatternMatching(exception: Exception): String = {
+  try {
+    throw exception
+  } catch {
+    case ex: IllegalArgumentException => "It's an IllegalArgumentException"
+    case ex: RuntimeException => "It's a RuntimeException"
+    case _ => "It's an unknown kind of exception"
+  }
+}
+```
+
+
+**Closures**
+
+```scala
+def closuresPatternMatching(list: List[Any]): List[Any] = {
+  list.collect { case i: Int if (i < 10) => i }
+}
+```
