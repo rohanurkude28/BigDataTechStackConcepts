@@ -8,6 +8,106 @@ javap className //How equivalent Java code looks after compilation
 
 ```
 
+##Pure Object Orientation (Objects are everywhere)
+
+In Java, there is a difference between an expression and a statement.
+
+```java
+int value = 10;
+        
+boolean result;
+        
+if(value > 20) {
+  result = true;
+}
+else {
+  result = false;
+}
+```
+
+In Scala, almost everything(there are some exceptions) evaluates to an expression. Everything is a value in Scala.
+It's just mostly syntactic sugar.
+
+```scala
+val number = 20
+
+  val s = {
+    if(number > 10){
+      println("Number is greater")
+    }
+
+    else {
+      println("Number is lesser")
+    }
+    "testing"
+  }
+
+  println(s)
+```
+
+Data types as Objects : There are no native data types in scala and all of the data types have a class of their own
+Operations on types : All operations that we do in primitive java types such as +,-,* etc ., are implemented as methods.
+
+##Functions as Objects
+
+
+The function type A => B is just an abbreviation for the class `scala.Function[A,B]`, roughly defined as:
+
+```scala
+package scala
+trait Function1[A, B] {
+	def apply(x: A): B
+}
+```
+
+###Expansion of Function Values
+
+An anonymous function such as `(x: Int) => x * x` is expanded to
+
+```scala
+{ class AnonFun extends Function1[Int, Int] {
+		def apply(x: Int) = x * x
+	}
+	new AnonFun
+}
+```
+
+Or, shorter, using anonymous class syntax, like in Java:
+
+```scala
+new Function1[Int, Int] {
+	def apply(x: Int) = x * x
+}
+```
+
+###Expansion of Function Calls
+
+A function call, such as f(a,b), where f is a value of some class type, is expanded to f.apply(a,b)
+So the OO-translation of
+
+```scala
+val f = (x: Int) => x * x
+f(7)
+```
+
+would be
+
+```scala
+val f = new Function1[Int, Int] {
+	def apply(x: Int) = x * x
+}
+f.apply(7)
+```
+
+###Functions and Methods
+
+Note that anything defined with a def, ie, a method, like
+```scala 
+def f(x: Int): Boolean = ...
+``` 
+
+is not itself a function value; but if the name of a method is used in a place where a function type is expected, it's converted automatically to the function value.
+
 ## Functions
 
 Functions are first-class citizens
@@ -108,4 +208,78 @@ def tupled: Tuple2[T1, T2] => R = {
   case Tuple2(x1, x2) => apply(x1, x2)
 }
 ```
+
+## Polymorphism in Scala
+
+### Parametric Polymorphism
+
+We can easily recognize parametrically polymorphic functions in Scala by the presence of one or more type parameters delimited by square brackets in the method signature — they enable us to apply the same logic to different data types.
+
+The Naive Solution : Below works well for integer arrays but is not reusable for other types:
+
+```scala
+def pairWiseReverseInt(xs: List[Int]): List[Int] = xs.grouped(2).flatMap(_.reverse).toList
+```
+
+DRY Solution : With parametric polymorphism, the logic remains the same for all the different types
+
+```scala
+def pairWiseReverse[A](xs:List[A]): List[A] = xs.grouped(2).flatMap(_.reverse).toList
+```
+
+Subtype Polymorphism : The key concept in subtype polymorphism is substitutability as defined in the Liskov substitution principle
+
+```scala
+trait Shape {
+    def getArea: Double
+}
+case class Square(side: Double) extends Shape {
+    override def getArea: Double = side * side
+}
+case class Circle(radius: Double) extends Shape {
+    override def getArea: Double = Math.PI * radius * radius
+}
+
+def printArea[T <: Shape](shape: T): Double = (math.floor(shape.getArea) * 100)/100
+```
+
+Ad-Hoc Polymorphism : The compiler switches between different code implementations depending on the type of input a method receives.
+
+When calling **.sorted** method on list scala knows via **Method Overloading** to call which function, but this doesn't apply to custom classes, 
+where in we have to provide an implementation of Ordering type.
+
+```scala
+    val ord: Ordering[StudentId] = (x, y) => x.id.compareTo(y.id)
+```
+
+**Operator Overloading** Scala supports operator overloading, which means that the meaning of operators (such as * and +) may be defined for arbitrary types.
+
+```scala
+class Complex(val real : Double, val imag : Double) {
+  def +(other : Complex) = new Complex(
+    real + other.real,
+    imag + other.imag)
+
+
+  def (other : Complex) = new Complex(
+    realother.real - imagother.imag,
+    imagother.real + real*other.imag)
+
+
+
+  def magnitude() : Double = Math.sqrt(realreal + imagimag)
+}
+
+var C = new Complex(x, y)
+var Z = new Complex(0.0, 0.0)
+
+var count = 0
+while (count < THRESHOLD && Z.magnitude() < 2.0) {
+  Z = Z*Z + C
+  count += 1
+}
+```
+
+This code determines whether a complex number C
+
 
