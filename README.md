@@ -857,6 +857,85 @@ def getPersonFor(firstName: String, lastName: String): Option[Person] = for {
 numbers.flatMap(incrementer).flatMap(doubler) == numbers.flatMap(x => incrementer(x).flatMap(doubler))
 ```
 
+## Implicits vs Given Using
+
+Implicits is like dependency injection
+
+- Implicit parameters
+- Type conversions (implicit functions)
+- “Pimp my library” (implicit classes)
+- Type classes (implicit objects)
+
+```scala
+
+// 1. Implicit parameters
+implicit val bob = "Bob"
+
+def greet(implicit name: String) = {
+  println(s"Hello, $name!")
+}
+
+greet //"Hello, Bob!"
+
+//2. Implicit functions
+implicit def intToStr(num: Int): String = s"The value is $num"
+
+42.toUpperCase() // evaluates to "THE VALUE IS 42"
+def functionTakingString(str: String) = str
+
+functionTakingString(42) // evaluates to "The value is 42"
+
+//3. implicit classes
+case class StringOps(str: String) {
+   def yell = str.toUpperCase() + "!"
+   def isQuestion = str.endsWith("?")
+}
+
+implicit def stringToStringOps(str: String): StringOps = StringOps(str)
+
+"Hello world".yell // evaluates to "HELLO WORLD!"
+"How are you?".isQuestion // evaluates to 'true'
+
+object Helpers {
+   implicit class StringOps(str: String) {
+      def yell = str.toUpperCase() + "!"
+      def isQuestion = str.endsWith("?")
+   }
+}
+
+"Hello world".yell // evaluates to "HELLO WORLD!"
+"How are you?".isQuestion // evaluates to 'true'
+
+//4. implicit objects
+// Our interface
+trait Monoid[A] {
+   def zero: A
+   def plus(a: A, b: A): A
+}
+
+// Implementation for integers
+implicit object IntegerMonoid extends Monoid[Int] {
+   override def zero: Int = 0
+   override def plus(a: Int, b: Int): Int = a + b
+}
+
+// Implementation for strings
+implicit object StringMonoid extends Monoid[String] {
+   override def zero: String = ""
+   override def plus(a: String, b: String): String = a.concat(b)
+}
+
+// Could be implementation for custom classes, etc..
+
+// Our generic function that knows which implementation to use based on type parameter 'A'
+def sum[A](values: Seq[A])(implicit ev: Monoid[A]): A = values.foldLeft(ev.zero)(ev.plus)
+```
+
+## Given
+
+[More about using and given in Scala3](https://www.youtube.com/watch?v=fStjOA0Wep4)
+[How Givens Can Work with Implicits](https://blog.rockthejvm.com/givens-and-implicits/)
+
 ## Functors
 
 ```scala
@@ -868,7 +947,6 @@ def do10xTry(attempt: Try[Int]): Try[Int] = attempt.map(_ * 10)
 - In case we want to add one more type for map , we would have to duplicate the code above, which is against DRY principle.Here Functors comes for our rescue.
 - Functors embody the concept of “mappable” data structures.
 - We use Functors to generalize our APIs, so that we don’t have to write the same transformations on different data structures.
-- 
 
 ```scala
 trait Functor[C[_]] {
@@ -884,6 +962,3 @@ def do10x[C[_]](container: C[Int])(using functor: Functor[C]) = functor.map(cont
 
 do10x(List(1,2,3))   //Injection of functor do10x(List(1,2,3))(using listFunctor) 
 ```
-
-
-[More about using and given in Scala3](https://www.youtube.com/watch?v=fStjOA0Wep4)
