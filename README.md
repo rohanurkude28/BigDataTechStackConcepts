@@ -44,7 +44,9 @@ javap className //How equivalent Java code looks after compilation
     * [Tuples](#tuples)
 7. [Functional Combinators](#functional-combinators)
 8. [Monads](#monads)
-9. [Functors](#functors)
+9. [Implicits](#implicits-vs-given-using)
+10. [Given and Using](#given-and-using)
+11. [Functors](#functors)
    
 ## <a name='PureObjectOrientation'>Pure Object Orientation (Objects are everywhere)</a>
 
@@ -857,7 +859,7 @@ def getPersonFor(firstName: String, lastName: String): Option[Person] = for {
 numbers.flatMap(incrementer).flatMap(doubler) == numbers.flatMap(x => incrementer(x).flatMap(doubler))
 ```
 
-## Implicits vs Given Using
+## Implicits
 
 Implicits is like dependency injection
 
@@ -931,7 +933,7 @@ implicit object StringMonoid extends Monoid[String] {
 def sum[A](values: Seq[A])(implicit ev: Monoid[A]): A = values.foldLeft(ev.zero)(ev.plus)
 ```
 
-## Given
+## Given and Using
 
 [More about using and given in Scala3](https://www.youtube.com/watch?v=fStjOA0Wep4)
 [How Givens Can Work with Implicits](https://blog.rockthejvm.com/givens-and-implicits/)
