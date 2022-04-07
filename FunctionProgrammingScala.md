@@ -8,7 +8,7 @@ javap className //How equivalent Java code looks after compilation
 
 ```
 
-##Pure Object Orientation (Objects are everywhere)
+## Pure Object Orientation (Objects are everywhere)
 
 In Java, there is a difference between an expression and a statement.
 
@@ -48,7 +48,7 @@ val number = 20
 Data types as Objects : There are no native data types in scala and all of the data types have a class of their own
 Operations on types : All operations that we do in primitive java types such as +,-,* etc ., are implemented as methods.
 
-##Functions as Objects
+## Functions as Objects
 
 
 The function type A => B is just an abbreviation for the class `scala.Function[A,B]`, roughly defined as:
@@ -60,7 +60,7 @@ trait Function1[A, B] {
 }
 ```
 
-###Expansion of Function Values
+### Expansion of Function Values
 
 An anonymous function such as `(x: Int) => x * x` is expanded to
 
@@ -80,7 +80,7 @@ new Function1[Int, Int] {
 }
 ```
 
-###Expansion of Function Calls
+### Expansion of Function Calls
 
 A function call, such as f(a,b), where f is a value of some class type, is expanded to f.apply(a,b)
 So the OO-translation of
@@ -99,7 +99,7 @@ val f = new Function1[Int, Int] {
 f.apply(7)
 ```
 
-###Functions and Methods
+### Functions and Methods
 
 Note that anything defined with a def, ie, a method, like
 ```scala 
