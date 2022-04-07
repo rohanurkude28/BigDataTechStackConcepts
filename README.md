@@ -27,8 +27,16 @@ javap className //How equivalent Java code looks after compilation
     * [Closure](#closure)
     * [Function Composition](#function-composition)
 3. [Polymorphism](#polymorphism-in-scala)
+    * [Parametric Polymorphism](#parametric-polymorphism)
 4. [Variances in Scala](#variances-in-scala)
-5. [Pattern Matching](##pattern-matching)
+    * [Covariance](#covariance-ft)
+    * [Contravariance](#contravariance-f-t)
+    * [Invariance](#invariance-f_)
+5. [Pattern Matching](#pattern-matching)
+    * [Patterns in Match Expression](#patterns-in-match-expression)
+    * [Extractors](#extractors)
+    * [Others](#others)
+6. [Collections](#collections)
    
 ## <a name='PureObjectOrientation'>Pure Object Orientation (Objects are everywhere)</a>
 
@@ -500,9 +508,9 @@ def matchShape(shape: Shape): String = shape match {
 }
 ```
 
-**Extractors** Extractor objects are objects containing a method called unapply. This method is executed when matching against a pattern is successful.
+### Extractors 
 
-
+Extractor objects are objects containing a method called unapply. This method is executed when matching against a pattern is successful.
 ```scala
 object Person {
   def apply(fullName: String) = fullName
@@ -523,7 +531,7 @@ def extractors(person: Any): String = {
 }
 ```
 
-
+### Other
 **Catch Blocks**
 
 ```scala
@@ -546,3 +554,8 @@ def closuresPatternMatching(list: List[Any]): List[Any] = {
   list.collect { case i: Int if (i < 10) => i }
 }
 ```
+
+
+## <a name='collections'>Collections</a>
+
+![](sections/resources/CollectionHierarchy.png)
