@@ -43,6 +43,7 @@ javap className //How equivalent Java code looks after compilation
     * [Set](#set)
     * [Tuples](#tuples)
 7. [Functional Combinators](#functional-combinators)
+8. [Monads](#monads)
    
 ## <a name='PureObjectOrientation'>Pure Object Orientation (Objects are everywhere)</a>
 
@@ -850,3 +851,7 @@ def getPersonFor(firstName: String, lastName: String): Option[Person] = for {
 } yield Person(fName, lName)
 ```
 
+**MyMonad(x).flatMap(f).flatMap(g) == MyMonad(x).flatMap(x => f(x).flatMap(g))**
+```scala
+numbers.flatMap(incrementer).flatMap(doubler) == numbers.flatMap(x => incrementer(x).flatMap(doubler))
+```
