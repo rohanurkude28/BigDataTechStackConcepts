@@ -622,6 +622,7 @@ def closuresPatternMatching(list: List[Any]): List[Any] = {
 - [var List vs val MutableList](https://stackoverflow.com/a/11002321)
 - [val-mutable versus var-immutable](https://stackoverflow.com/a/11386867)
 - [Java vs Scala Collection conversion](https://stackoverflow.com/a/8302493)
+- [Why Quick Sort preferred for Arrays and Merge Sort for Linked Lists?](https://www.geeksforgeeks.org/why-quick-sort-preferred-for-arrays-and-merge-sort-for-linked-lists/)
 
 ### List
 
@@ -935,8 +936,8 @@ def sum[A](values: Seq[A])(implicit ev: Monoid[A]): A = values.foldLeft(ev.zero)
 
 ## Given and Using
 
-[More about using and given in Scala3](https://www.youtube.com/watch?v=fStjOA0Wep4)
-[How Givens Can Work with Implicits](https://blog.rockthejvm.com/givens-and-implicits/)
+- [More about using and given in Scala3](https://www.youtube.com/watch?v=fStjOA0Wep4)
+- [How Givens Can Work with Implicits](https://blog.rockthejvm.com/givens-and-implicits/)
 
 ## Functors
 
@@ -964,3 +965,29 @@ def do10x[C[_]](container: C[Int])(using functor: Functor[C]) = functor.map(cont
 
 do10x(List(1,2,3))   //Injection of functor do10x(List(1,2,3))(using listFunctor) 
 ```
+
+## Parallelism vs Concurrency
+
+- Parallelism is about doing a lot of things at once. In java we can use Spark. When multiple tasks OR several parts of a unique task literally run at the same time. Requires more than 1 CPU.
+- Concurrency is about dealing with a lot of things at once. Shared resource is to be accessed/updated OR Multiple tasks needs to coordinate. To deal with concurrency we can use - Akka
+
+## Akka
+
+- Akka is a open-source library or a toolkit written in Scala to create concurrent, distributed and fault-tolerant application.
+- Akka is written in Scala
+- It implements Actor Based Model
+- Akka makes it easier to write correct concurrent and parallel application.
+
+
+### Actor 
+
+- An actor is an entity which communicates to other actor by message passing. 
+- We can say that an actor is an object that encapsulates state and behavior.
+
+
+### ActorSystem
+
+- The ActorSystem is a root actor in actors structure
+- An ActorSystem is a hierarchical group of actors which share common configuration, e.g. dispatchers, deployments, remote capabilities and addresses.
+- It is also the entry point for creating or looking up actors.
+- 
