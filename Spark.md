@@ -74,9 +74,9 @@ Distribution introduces two issues
 
 ### Types of RDD
 
-- Parallel Collection RDD - is a RDD of a collection of elements with number of partitions. sc.parallelize(1 to 10, 2)
+- Parallel Collection RDD - is a RDD of a collection of elements with number of partitions. **sc.parallelize(1 to 10, 2)**
 - Shuffled RDD - is a key value pair that represents shuffle step in RDD lineage. These RDDs are created after RDD transformations that trigger data shuffling across nodes in cluster
-- Pair RDD -  is a key value pair where in similar operations needs to be performed on each keys
+- Pair RDD -  is a key value pair where in similar operations needs to be performed on each keys. **rdd.map(x => (x.1,x.2))**
 - Hadoop RDD - provide core functionalities for reading data stored in HDFS, SparkContext: Hadoop file, text file, sequence file
 
 
@@ -117,3 +117,59 @@ Cache : Shorthand for using default storage level, which is in-memory only as re
 Persist : Persistence can be customised with this method. Pass the storage level you'd like as a parameter to persist.
 
 ![](sections/resources/CachingNPersistLevels.png)
+
+- [Scala : fold vs foldLeft - Why fold can run in parallel?](https://stackoverflow.com/questions/16111440/scala-fold-vs-foldleft)
+
+![](sections/resources/TypeErrorFoldLeftParallel.png)
+
+To Learn:
+
+sortWith
+aggregate ![](sections/resources/AggregateParallel.png) in accumulator we would waste lot of memory and time to carry all unrelated fields 
+groupByKey  - index (Transformation - lazy)
+reduceByKey - more efficient than groupByKey and then reduce     (Transformation - lazy)
+countByKey  - no of elements per key  (Transformation - lazy)
+mapValues   - only applies to Pair RDD (Action - eager) (org, budget) mapValues (org, (budget,1))
+keys - (Transformation - lazy)
+join - (Transformation - lazy)
+leftOuterJoin/rightOuterJoin
+collect sortBy
+mapPartitions
+mapParallel
+reduce
+
+- Why Serial foldLeft/foldRight doesn't exist on Spark? Ans : Doing things serially across is difficult. Lots of Synchronisation. Doesn't make a lot of sense
+
+## Shuffle
+
+Shuffles can be an enormous hit to performance because it means that Spark has to move a lot of its data around the network and remember how important latency is.
+
+### GroupByKey
+
+![](sections/resources/GroupByKey-ClusterDataDistribution.png)
+
+### ReduceByKey
+
+![](sections/resources/ReduceByKey-ClusterDataDistribution.png)
+
+
+## Partitioning
+
+The data within RDD are split into multiple Spark partitions
+
+### Properties of Partitions
+
+- Partitions never span multiple machines i.e. tuples in same partitions are guaranteed to be on same machine
+- Each machine in cluster contain one or more partitions
+- Number of partition to use is configurable. By default, It's equal to total number of cores on all executor nodes
+
+Two Types of Partitions:
+- Hash Partitioning
+- Range Partitioning
+**Custom partitioning only possible on Pair RDDs**
+
+How to Set Partitioning?
+- by calling partitionBy on RDD
+- using transformations that return RDD with specific partitioner
+
+**map/flatMap operations loses partitioning in result RDD - cause map and flatMap can change the Keys, hence use mapValues**
