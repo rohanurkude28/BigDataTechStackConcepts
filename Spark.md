@@ -1,18 +1,3 @@
-## Hadoop
-
-Has HDFS and MapReduce
-- HDFS - is used to distribute the data 
-- MapReduce - process data in parallel, fault tolerant. Java, Python,C & C++
-- Between each map/reduce steps it shuffles data over network writes intermediate data to disk. (100 times slower than memory)
-
-Abstraction of MapReduce
-- Hive (FB) - Interact with sql backend is Java. Query Engine 
-- Pig (Yahoo) - PigLatin 
-- Scoop (Java) - bring data from RDBMS dump into HDFS and vice Versa 
-- Oozie (Java) - Scheduler of jobs (Like Control M)
-
-HBase (FB) -
-
 ## Spark
 
 - Distributed Processing Engine(Why distributes? For parallel processing) 
@@ -46,6 +31,9 @@ Distribution introduces two issues
 
 ![](sections/resources/SparkWorkflow.png)
 
+![](sections/resources/SparkWorkFlowInternal.png)
+
+
 - Spark uses concept called partitioning. partitions data and feeds to executors which then divides it into task 
 - Spark Streaming - runs 24x7 unlike batch processing, challenge - resources - hence dynamic resource allocation
 - Fault tolerant 
@@ -57,6 +45,8 @@ Distribution introduces two issues
 - Spark Structured Streaming - Polls data after some duration, recevied data is triggered and appended in continous flow, Dataframes are more optimised
 
 
+## Spark Context vs Spark Session : TODO
+
 ### RDD (Resilient Distributed Dataset)
 
 - Basic DS of Spark Framework
@@ -64,6 +54,13 @@ Distribution introduces two issues
 - Each dataset in RDD is divided into logical partitions, which may be computed on different on different nodes of cluster
 - RDD can contain any type of object Java, Scala, Python, including user defined object
 - All signature are same except **.aggregate** which has binding parameter (Call be ref) which can cause issue over network
+
+### RDD Representation
+
+- Partitions : Atomic piece of dataset. One or more per compute node.
+- Dependencies : Model relation between this RDD and its Partitions with RDDs it was derived from
+- A function for computing the dataset based on its parent RDD
+- Metadata about partitioning scheming and data placement 
 
 ### Ways to create RDD
 
@@ -122,7 +119,7 @@ Persist : Persistence can be customised with this method. Pass the storage level
 
 ![](sections/resources/TypeErrorFoldLeftParallel.png)
 
-To Learn:
+TODO :
 
 sortWith
 aggregate ![](sections/resources/AggregateParallel.png) in accumulator we would waste lot of memory and time to carry all unrelated fields 
@@ -142,7 +139,8 @@ reduce
 
 ## Shuffle
 
-Shuffles can be an enormous hit to performance because it means that Spark has to move a lot of its data around the network and remember how important latency is.
+- Shuffles can be an enormous hit to performance because it means that Spark has to move a lot of its data around the network and remember how important latency is.
+- A Shuffle can occur when the resulting RDD depends on other elements from same RDD or another RDD
 
 ### GroupByKey
 
@@ -152,7 +150,12 @@ Shuffles can be an enormous hit to performance because it means that Spark has t
 
 ![](sections/resources/ReduceByKey-ClusterDataDistribution.png)
 
+Transformation causes shuffle. There are two kinds
+- Narrow : when each partition of the parent RDD is used by at most one partition of the child RDD. (Fast, No shuffle, Optimisation like pipelining possible)
+- Wide :  each partition of the parent RDD may be depended on by multiple children partitions. (Slow, require some data to be shuffled over network)
 
+![](sections/resources/NarrowNWideTransformation.png)
+ 
 ## Partitioning
 
 The data within RDD are split into multiple Spark partitions
@@ -173,3 +176,125 @@ How to Set Partitioning?
 - using transformations that return RDD with specific partitioner
 
 **map/flatMap operations loses partitioning in result RDD - cause map and flatMap can change the Keys, hence use mapValues**
+
+### Optimising with Partitioner
+
+Partitioning can bring enormous performance gains, especially in the face of operations that may cause shuffles. The basic intuition is that if you can somehow optimize for data locality, then you can prevent a lot of network traffic from even happening.
+
+## Lineages
+
+ - Computation on RDDs are represented as lineage graph; a Directed Acyclic Graph (DAG) representing the computation done on the RDD
+ - Recovering from failures by recomputing lost partitions from Lineage Graphs
+ - Fault tolerant without having to write data to disk
+
+## DAG : TODO
+
+## Structure vs Unstructured Data
+
+- Object blobs and HOF falls into unstructured and spark can't look inside it and hence can't optimise. (We have to do it)
+- Database/Hive are structured and Spark can optimise on its own
+
+## Spark SQL
+
+![](sections/resources/SparkSQL.png)
+
+Three main APIs:
+- SQL Literal Syntax
+- Dataframes
+- Datasets
+
+Two specialised backend components:
+- Catalyst, query optimiser
+- Tungsten, off-heap serialiser
+
+### Data Frames
+
+- Dataframes is Spark SQL's abstraction
+- Dataframes, are conceptually RDDs full of records with a know schema (Kind of like table)
+- Dataframes are Untyped
+- Transformations are Untyped
+
+Ways to create a dataframe:
+- From existing RDD .toDF
+- Reading a specific datasource from a file
+
+```scala
+case class Department(id: Int,dname:String)
+case class Employee(id: Int,fname:String,lname:String,age:Int,city:String,deptId:Int)
+
+val depts = List(Department(1000,"Finance"),Department(1001,"IT"),Department(1002,"HR"),Department(1003,null))
+val employees = List(Employee(1,"John","Doe",21,"Sydney",1000),Employee(2,"Jane","Doe",32,"Melbourne",1001),Employee(3,"Jack","Daniel",25,"Sydney",1001),Employee(4,"James","Bond",32,"Victoria",1002),Employee(5,"Jason","Bourne",41,"Sydney",1002),Employee(6,"Jamie","Lannister",51,null,1000),Employee(7,"Jake","Gyllenhaal",28,"Sydney",1004))
+
+val deptDF = sc.parallelize(depts).toDF
+val employeeDF = sc.parallelize(employees).toDF
+
+deptDF.show()
+employeeDF.show()
+
+val sydneyEmployeeDF =employeeDF.select("id","fname").where("city == 'Sydney'").orderBy("id")
+sydneyEmployeeDF.show()
+
+val youngCityEmployeeDF =employeeDF.groupBy("city").min("age")
+youngCityEmployeeDF.show()
+
+import org.apache.spark.sql.functions._
+val aggCityEmployeeDF =employeeDF.groupBy($"city").agg(count($"city")).orderBy($"count(city)".desc)
+aggCityEmployeeDF.show()
+
+val avgCityEmployeeDF =employeeDF.groupBy($"city").agg(sum($"age")/count($"age"))
+avgCityEmployeeDF.show()
+
+val joinEmployeeWithDept = employeeDF.join(deptDF, deptDF("id")===employeeDF("deptId")).drop(deptDF("id")).orderBy($"id") //Doesn't give error if given wrong column Name
+
+joinEmployeeWithDept.show()
+
+val leftJoinEmployeeWithDept = employeeDF.join(deptDF, deptDF("id")===employeeDF("deptId"),"left_outer").drop(deptDF("id")).orderBy($"id") //Doesn't give error if given wrong column Name
+
+leftJoinEmployeeWithDept.show()
+```
+
+### DF Optimization
+
+Catalyst Optimiser
+- Reordering operations
+- Reduce the amount of data we must read
+- Pruning unneeded Partitions
+
+Tungsten Optimiser
+- highly specialise data encoder (tightly serialised hence can keep more data into memory)
+- column based
+- off heap (free from garbage collection overhead)
+
+### DataSets
+
+- Data Frames are DataSets
+- `type DataFrame = Dataset[Row]`
+- typed distributed collection of data
+- mix RDD and DataFrame operations
+
+
+
+Ways to create a dataframe:
+- From existing DF.toDS
+- Reading a specific datasource from a file. `spark.read.json(""").as[Person]`
+
+```scala
+val tupleList = List((1,"One"),(2,"Two"),(3,"Three"),(4,"Four"))
+val tupleListRDD = sc.parallelize(tupleList)
+
+tupleListRDD.reduceByKey(_ + _).collect
+
+// equivalent in DS
+
+val tupleListDS = tupleList.toDS
+tupleListDS.groupByKey(_._1).mapGroups((k,vs) => (k,vs.foldLeft("")((acc,p)=> acc + p._2))).show()
+tupleListDS.groupByKey(_._1).mapValues(_._2).reduceGroups((acc,p)=> acc+p).show()
+```
+
+### DF vs DS vs RDD
+
+![](sections/resources/WhenToUseWhat.png)
+
+
+
+[Spark By Example](https://sparkbyexamples.com/spark)
