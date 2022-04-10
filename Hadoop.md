@@ -1,3 +1,5 @@
+//TODO: Index Creation
+
 ## Hadoop
 
 Has HDFS and MapReduce
@@ -33,6 +35,8 @@ Computation frameworks such as Spark, Storm, Tez now enable real-time processing
 - It is recommended to have at least three replicas, which is also the default setting. The master node stores them onto separate DataNodes of the cluster.
 - The state of nodes is closely monitored to ensure the data is always available.
 
+
+//TODO: Sub Point formatting
 * Store the first replica on the node where the client is located.
 * Then, store the second replica on a different rack.
 * Finally, store the third replica on the same rack as the second replica, but on a different node.
@@ -92,3 +96,7 @@ The Map and Reduce stages have two parts each.
 
 ![](sections/resources/ReducePhase.png)
 
+
+
+[YARN Execution Flow - 1](https://blog.cloudera.com/apache-hadoop-yarn-concepts-and-applications/)
+[YARN Execution Flow - 2](http://geekdirt.com/blog/introduction-and-working-of-yarn/)
