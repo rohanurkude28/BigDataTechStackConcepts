@@ -1,3 +1,5 @@
+//TODO: Index Creation
+
 ## Spark
 
 - Distributed Processing Engine(Why distributes? For parallel processing) 
@@ -9,25 +11,17 @@
 - Hadoop different tools - Pig (Scripting), Hive (SQL), Mahout(ML), Oozie(Workflow)
 - Spark - Spark streaming, SQL, Mlib, GraphX, Spark Core (Execution Engine - RDD for batch processing)
 
-
 - In the shared memory case, you have this data-parallel programming model, this collections programming model. And underneath the hood, the way that it's actually executed is that the data is partitioned in memory.And then operated upon in parallel by independent threads or using a thread pool or something like that
 - In the distributed case, we have the same collection abstraction we did in parallel model on top of this distributed execution. But now instead we have data between machines, the network in between which is important. And just like in a shared memory case we still operate on that data in parallel. (Concern of latency between workers)
 
-### Latency
-
-Distribution introduces two issues
-
-- Partial failure : crash failure of a subset of machines involved in distributed computation
-- Latency : certain operation has higher latency than other operations due to network latency
-
-![](sections/resources/LatencyNumbers.png)
-
 ### Spark Architecture
 
-- Resources will be given by Cluster Manager eg: YARN
+- Resources will be given by Cluster Manager eg: [YARN](Hadoop.md#yet-another-resource-negotiator-yarn) 
 - Resources are given inform of executor, Executor is combination of CPU and RAM.
 - Data Node 1 - Driver program starts on one of the machine - contains settings to run the programs - resources, compressions, initialising the object . Will create spark context object. 
-- Using this driver program will talk to cluster manager
+- Using this driver program will talk to cluster manager. 
+  
+  **_Once Driver has the resource based on the logic written in driver class, it will create a logical plan and then will create a DAG and then create an execution plan, as part of this it will divide the whole logic into stages and stages are further divided into tasks which are executed into nodes_**
 
 ![](sections/resources/SparkWorkflow.png)
 
@@ -44,8 +38,56 @@ Distribution introduces two issues
 - Spark Streaming - Micro Batch processing DStream (Batch Interval), each batch represents a RDD, 
 - Spark Structured Streaming - Polls data after some duration, recevied data is triggered and appended in continous flow, Dataframes are more optimised
 
+## Lineages
 
-## Spark Context vs Spark Session : TODO
+- Computation on RDDs are represented as lineage graph; a Directed Acyclic Graph (DAG) representing the computation done on the RDD
+- Recovering from failures by recomputing lost partitions from Lineage Graphs
+- Fault tolerant without having to write data to disk
+
+## DAG
+
+- Its set of edges and vertices, vertices represent RDDs and edges represent operation to be performed on RDDs
+- Every edge directs from earlier to later in sequence
+- On calling of _Action_ , created DAG is submitted to DAG scheduler which further splits graph into stages of the task based on the demarcation of shuffling, new stages is created based on the data shuffling requirement.
+- Using DAG we can go any deep dive into whats happening in each stage. Scheduler splits the spark RDD into various stages based on transformation applied Narrow vs Wide.
+- Each Stage has multiple tasks, these stages are based on partition of RDDs, so that same computation can be performed in parallel.
+
+## Spark Context vs Spark Session
+
+Spark Context :
+
+- SparkContext is the entry point of Spark functionality.
+- Spark context allows Spark Application to access Spark Cluster with the help of Resource Manager
+```scala
+val sparkConf = new SparkConf().setAppName("SparkContextExample").setMaster("local")
+//create spark context object
+val sc = new SparkContext(conf)
+
+sc.textFile
+sc.sequenceFile
+sc.parallelize
+
+sc.stop()
+```
+
+Spark Session :
+
+- Spark session is a unified entry point of a spark application from Spark 2.0. It provides a way to interact with various spark’s functionality with a lesser number of constructs. Instead of having a spark context, hive context, SQL context, now all of it is encapsulated in a Spark session.
+- Every user can work in an isolated way
+
+```scala
+val spark = SparkSession.builder
+.appName("SparkSessionExample") 
+.master("local[4]") 
+.config("spark.sql.warehouse.dir", "target/spark-warehouse")
+.enableHiveSupport()
+.getOrCreate
+
+spark.newSession()
+
+spark.sparkContext.parallelize
+```
+
 
 ### RDD (Resilient Distributed Dataset)
 
@@ -85,12 +127,6 @@ Two types of data ops:
 
 **foreach is a eager action but return unit hence it executes on executor and not driver whereas take returns a type A hence it executes on driver Node**
 
-Big data processing is just computation of iterative algorithms. Below is difference between Hadoop and Spark:
-
-![](sections/resources/BigDataIteration.png)
-
-90% of the time is spent in hadoop in IOps, it also involves killing JVM per iteration and rebooting.
-
 Dataframes - is a Dataset organised into named columns,  equivalent to a RDBMS table, with richer optimisation underhood.
 
 
@@ -115,27 +151,43 @@ Persist : Persistence can be customised with this method. Pass the storage level
 
 ![](sections/resources/CachingNPersistLevels.png)
 
+- Cache is warpper on top of Persist API `Cache() = Persist(StaorageLevel.MEMORY_ONLY)`
+- By Default Cache is in Memory and is a deserialized object
+- Spark UI -> Storage (Fraction Memory -> Percentage of data stored, Size on memory, Size on disk)
+
+```scala
+import scala.util._
+import org.apache.spark.sql.functions._
+
+val df1 = Seq.fill(50)(Random.nextInt()).toDF("C1")
+val df2 = df1.withColumn("C2",rand()).join(df1,"C1").cache()
+val df3 = df2.withColumn("C3",rand()).join(df1,"C2").persist(StaorageLevel.DISK_ONLY)
+val df4 = df3.withColumn("C4",rand()).join(df1,"C3")
+val df5 = df4.withColumn("C5",rand()).join(df1,"C4")
+val df6 = df5.withColumn("C6",rand()).join(df1,"C5")
+
+```
+
 - [Scala : fold vs foldLeft - Why fold can run in parallel?](https://stackoverflow.com/questions/16111440/scala-fold-vs-foldleft)
+- Why Serial foldLeft/foldRight doesn't exist on Spark? Ans : Doing things serially across is difficult. Lots of Synchronisation. Doesn't make a lot of sense
 
 ![](sections/resources/TypeErrorFoldLeftParallel.png)
 
-TODO :
+TODO Create A Mapping of Transformations and Actions with clauses:
 
-sortWith
-aggregate ![](sections/resources/AggregateParallel.png) in accumulator we would waste lot of memory and time to carry all unrelated fields 
-groupByKey  - index (Transformation - lazy)
-reduceByKey - more efficient than groupByKey and then reduce     (Transformation - lazy)
-countByKey  - no of elements per key  (Transformation - lazy)
-mapValues   - only applies to Pair RDD (Action - eager) (org, budget) mapValues (org, (budget,1))
-keys - (Transformation - lazy)
-join - (Transformation - lazy)
-leftOuterJoin/rightOuterJoin
-collect sortBy
-mapPartitions
-mapParallel
-reduce
-
-- Why Serial foldLeft/foldRight doesn't exist on Spark? Ans : Doing things serially across is difficult. Lots of Synchronisation. Doesn't make a lot of sense
+- sortWith 
+- aggregate ![](sections/resources/AggregateParallel.png) in accumulator we would waste lot of memory and time to carry all unrelated fields 
+- groupByKey  - index (Transformation - lazy)
+- reduceByKey - more efficient than groupByKey and then reduce     (Transformation - lazy)
+- countByKey  - no of elements per key  (Transformation - lazy)
+- mapValues   - only applies to Pair RDD (Action - eager) (org, budget) mapValues (org, (budget,1))
+- keys - (Transformation - lazy)
+- join - (Transformation - lazy)
+- leftOuterJoin/rightOuterJoin 
+- collect sortBy 
+- mapPartitions 
+- mapParallel 
+- reduce
 
 ## Shuffle
 
@@ -169,7 +221,7 @@ The data within RDD are split into multiple Spark partitions
 Two Types of Partitions:
 - Hash Partitioning
 - Range Partitioning
-**Custom partitioning only possible on Pair RDDs**
+- **Custom partitioning only possible on Pair RDDs**
 
 How to Set Partitioning?
 - by calling partitionBy on RDD
@@ -181,13 +233,6 @@ How to Set Partitioning?
 
 Partitioning can bring enormous performance gains, especially in the face of operations that may cause shuffles. The basic intuition is that if you can somehow optimize for data locality, then you can prevent a lot of network traffic from even happening.
 
-## Lineages
-
- - Computation on RDDs are represented as lineage graph; a Directed Acyclic Graph (DAG) representing the computation done on the RDD
- - Recovering from failures by recomputing lost partitions from Lineage Graphs
- - Fault tolerant without having to write data to disk
-
-## DAG : TODO
 
 ## Structure vs Unstructured Data
 
@@ -274,7 +319,7 @@ Tungsten Optimiser
 
 
 
-Ways to create a dataframe:
+Ways to create a DataSets:
 - From existing DF.toDS
 - Reading a specific datasource from a file. `spark.read.json(""").as[Person]`
 
@@ -291,10 +336,23 @@ tupleListDS.groupByKey(_._1).mapGroups((k,vs) => (k,vs.foldLeft("")((acc,p)=> ac
 tupleListDS.groupByKey(_._1).mapValues(_._2).reduceGroups((acc,p)=> acc+p).show()
 ```
 
-### DF vs DS vs RDD
+### [DF vs DS vs RDD](https://phoenixnap.com/kb/rdd-vs-dataframe-vs-dataset)
 
 ![](sections/resources/WhenToUseWhat.png)
 
+### Spark Performance Tuning : TODO
 
+#### Executor tuning
+- Leave aside one core per node : For several daemons running in background like NameNode, Secondary NameNode, DataNode, JobTracker, Task Tracker, Application master etc.
+- HDFS Throughput : HDFS client has trouble with tons of concurrent threads, Too many tasks per executor causes Huge GC overheads. It was observed HDFS achieves full write throughput with **5 cores/tasks per executor**
+- YARN Application Master : 1GB and 1 Executor for AM
+- Memory Overhead : Full memory requested to yarn per executor = spark-executor-memory + spark-yarn-executor-memoryOverhead
+  spark-yarn-executor-memoryOverhead = Max(384MB, 7% of spark-executor-memory)
+  eg : IF we request for 20GB per executor, AM will get 20GB + memoryOverhead = 20 + 7% of 20 = 23 GB
+- Running executor with too much memory often results in excessive GC delays
+- Running tiny executors throws away benefits that comes from running multiple JVM 
 
 [Spark By Example](https://sparkbyexamples.com/spark)
+
+
+//TODO: Handling data skewness in spark
