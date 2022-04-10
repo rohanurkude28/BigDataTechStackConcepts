@@ -98,4 +98,5 @@ The Map and Reduce stages have two parts each.
 
 
 
-[Hadoop](https://stackoverflow.com/a/67820347)
+[YARN Execution Flow - 1](https://blog.cloudera.com/apache-hadoop-yarn-concepts-and-applications/)
+[YARN Execution Flow - 2](http://geekdirt.com/blog/introduction-and-working-of-yarn/)
