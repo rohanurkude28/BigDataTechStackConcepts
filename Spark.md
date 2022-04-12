@@ -14,6 +14,24 @@
 - In the shared memory case, you have this data-parallel programming model, this collections programming model. And underneath the hood, the way that it's actually executed is that the data is partitioned in memory.And then operated upon in parallel by independent threads or using a thread pool or something like that
 - In the distributed case, we have the same collection abstraction we did in parallel model on top of this distributed execution. But now instead we have data between machines, the network in between which is important. And just like in a shared memory case we still operate on that data in parallel. (Concern of latency between workers)
 
+
+
+Terminologies
+
+- **RDD (Resilient Distributed Datasets)** : RDD is Spark’s core abstraction as a distributed collection of objects. It is an Immutable dataset which cannot change with time. This data can be stored in memory or disk across the cluster. The data is logically partitioned over the cluster. It offers in-parallel operation across the cluster.As RDDs cannot be changed it can be transformed using several operations. Those are Transformation and Action operations. Furthermore, RDDs are fault Tolerant in nature. If any failure occurs it can rebuild lost data automatically through lineage graph [DAG] . 
+- **Partitions** : To speed up the data processing, term partitioning of data comes in. Basically, Partition means logical and smaller unit of data. Partitioning of data defines as to derive logical units of data. 
+- **Cluster Manager** :Cluster manager runs as an external service which provides resources to each application. This is possible to run Spark on the distributed node on Cluster. Spark supports following cluster managers. First is Apache Spark Standalone cluster manager, the Second one is Apache Mesos while third is Hadoop Yarn. Hence, all cluster managers are different on comparing by scheduling, security, and monitoring. As a matter of fact, each has its own benefits. No doubt, We can select any cluster manager as per our need and goal. 
+- **Worker Node** : A worker node refers to a slave node. Actually, any node which can run the application across the cluster is a worker node. In other words, any node runs the program in the cluster is defined as worker node. 
+- **Executor** : Any application can have its own executors. These are generally present at worker nodes which implements the task. In other words, as any process activates for an application on a worker node. That executes tasks and keeps data in-memory or disk storage over them. 
+- **Task** : A Task is a unit of work that is sent to any executor. 
+- **Stage** : Each job is divided into small sets of tasks which are known as stages. 
+- **Driver Program** : The driver program is the process running the main() function of the application. It also creates the SparkContext. This program runs on a master node of the machine. In the meantime, it also declares transformations and actions on data RDDs. 
+- **Action** : Actions refer to an operation. It includes reducing, counts, first and many more. However, it also applies to RDD that perform computations. Also, send the result back to driver program. 
+- **Lazy Evaluation** : It optimises the overall data processing workflow. Lazy evaluation means execution is not possible until we trigger an action. ultimately, all the transformations take place are lazy in spark.
+- **Data Frame** : It is an immutable distributed data collection, like RDD. We can organise data into names, columns, tables etc. in the database. This design makes large datasets processing even easier. It allows developers to impose distributed collection into a structure and high-level abstraction. 
+- **Datasets** : To express transformation on domain objects, Datasets provides an API to users. It also enhances the performance and advantages of robust Spark SQL execution engine. 
+- **Spark Context** : Spark context holds a connection with Spark cluster manager. While Co-ordinated by it, applications run as an independent set of processes in a program.
+
 ### Spark Architecture
 
 - Resources will be given by Cluster Manager eg: [YARN](Hadoop.md#yet-another-resource-negotiator-yarn) 
@@ -24,6 +42,8 @@
   **_Once Driver has the resource based on the logic written in driver class, it will create a logical plan and then will create a DAG and then create an execution plan, as part of this it will divide the whole logic into stages and stages are further divided into tasks which are executed into nodes_**
 
 ![](sections/resources/SparkWorkflow.png)
+
+![](sections/resources/SparkInfra.png)
 
 ![](sections/resources/SparkWorkFlowInternal.png)
 
@@ -340,6 +360,34 @@ tupleListDS.groupByKey(_._1).mapValues(_._2).reduceGroups((acc,p)=> acc+p).show(
 
 ![](sections/resources/WhenToUseWhat.png)
 
+
+### [Repartition vs Coalesce](https://mrpowers.medium.com/managing-spark-partitions-with-coalesce-and-repartition-4050c57ad5c4)
+
+- Repartition cause Shuffle
+- Repartition ensure even distribution of data
+- Increase or decrease partitions.
+- Results in more or less equal sized partitions.
+- Since a full shuffle takes place, repartition is less performant than coalesce.
+
+
+- Coalesce has no full shuffle, "stitches" partition together
+- Only decrease the number of partitions.
+- If the number of partitions is reduced from 5 to 2. Coalesce will not move data in 2 executors and move the data from the remaining 3 executors to the 2 executors. Thereby avoiding a full shuffle.Because of the above reason the partition size vary by a high degree.
+- When we increase partitions in Coalesce, it is equivalent to Repartition
+
+Finally, When you call the repartition() function, Spark internally calls the coalesce function with shuffle parameter set to true.
+
+```scala
+val numbers = sc.parallelize(1 to 10000000)
+val repartitionedNumbers = numbers.repartition(2)
+
+repartitionedNumbers.count()
+
+
+val coalesceNumbers = numbers.coalesce(2)
+coalesceNumbers.count()
+```
+
 ### Spark Performance Tuning : TODO
 
 #### Executor tuning
@@ -356,3 +404,22 @@ tupleListDS.groupByKey(_._1).mapValues(_._2).reduceGroups((acc,p)=> acc+p).show(
 
 
 //TODO: Handling data skewness in spark
+
+
+### Spark Submit options
+
+```editorconfig
+"--deploy-mode","cluster",                                                                  #YARN mode ; could be client or cluster
+"--conf", "spark.yarn.executor.memoryOverhead=1500",                                        #the memory Spark wants to use in each executor for persisting data like Java String literals,etc.
+"--conf", "spark.default.parallelism=1024",                                                 #Number of RDD partitions that the entire input (our EC source tiles) gets divided into.
+"--conf", "spark.rdd.compress=true",                                                           
+"--conf", "spark.executor.userClassPathFirst=true",
+"--conf", "spark.driver.userClassPathFirst=true",
+"--jars", "s3://here-ngmp-dev-hdmap/libRtl_EarthCoreOpsApiJava.so",                        
+"--driver-memory","4G",                                                                     #memory allocated for the driver
+"--executor-memory","4G",                                                                   #memory allocated to each executor . This excludes the memory overhead
+"--num-executors","2",                                                                      #total number of executors to be requested on the entire cluster. NOTE: Spark is smart and overrides this value if it realizes it needs more/less executors.       
+"--executor-cores","2",                                                                     #number of parallel tasks that can run inside each executor
+"--class","com.here.hdmap.filters.acf.earthcore.Main",
+"s3://here-ngmp-dev-hdmap/shreya-test400/acf400/hdmap-filters-acf-earthcore-impl-1.0.0-SNAPSHOT-jar-with-dependencies.jar"
+```

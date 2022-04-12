@@ -8,7 +8,9 @@ ThisBuild / organizationName := "rohanurkude28"
 lazy val root = (project in file("."))
   .settings(
     name := "ScalaConcepts",
-    libraryDependencies += scalaTest % Test
-  )
+    libraryDependencies += scalaTest % Test,
+    libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.6.5"
+
+)
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.

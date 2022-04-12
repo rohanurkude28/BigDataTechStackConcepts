@@ -1,4 +1,4 @@
-# Scala Concepts 
+# Scala Concepts
 
 - [Scala Style Guide : ](ScalaStyleGuide.md)
 - [Scala Best Practices : ](ScalaBestPractices.md)
@@ -6,10 +6,13 @@
 - [Does Scala's pattern matching violate the Open/Closed Principle](https://stackoverflow.com/a/564498)
 
 Underneath Code can be viewed with below commands
+
 ```scala
-scalac -Xprint:all *.scala //For viewing how syntactic sugar is handled
+scalac - Xprint:
+all *
+.scala //For viewing how syntactic sugar is handled
 scalap className //How code looks after compilation using bytecode
-javap className //How equivalent Java code looks after compilation
+  javap className //How equivalent Java code looks after compilation
 
 ```
 
@@ -47,42 +50,42 @@ javap className //How equivalent Java code looks after compilation
 9. [Implicits](#implicits-vs-given-using)
 10. [Given and Using](#given-and-using)
 11. [Functors](#functors)
-   
+
 ## <a name='PureObjectOrientation'>Pure Object Orientation (Objects are everywhere)</a>
 
 In Java, there is a difference between an expression and a statement.
 
 ```java
-int value = 10;
-        
-boolean result;
-        
-if(value > 20) {
-  result = true;
-}
-else {
-  result = false;
-}
+int value=10;
+
+        boolean result;
+
+        if(value>20){
+        result=true;
+        }
+        else{
+        result=false;
+        }
 ```
 
-In Scala, almost everything(there are some exceptions) evaluates to an expression. Everything is a value in Scala.
-It's just mostly syntactic sugar.
+In Scala, almost everything(there are some exceptions) evaluates to an expression. Everything is a value in Scala. It's
+just mostly syntactic sugar.
 
 ```scala
 val number = 20
 
-  val s = {
-    if(number > 10){
-      println("Number is greater")
-    }
-
-    else {
-      println("Number is lesser")
-    }
-    "testing"
+val s = {
+  if (number > 10) {
+    println("Number is greater")
   }
 
-  println(s)
+  else {
+    println("Number is lesser")
+  }
+  "testing"
+}
+
+println(s)
 ```
 
 Data types as Objects : There are no native data types in scala and all of the data types have a class of their own
@@ -90,13 +93,13 @@ Operations on types : All operations that we do in primitive java types such as 
 
 ## Functions as Objects
 
-
 The function type A => B is just an abbreviation for the class `scala.Function[A,B]`, roughly defined as:
 
 ```scala
 package scala
+
 trait Function1[A, B] {
-	def apply(x: A): B
+  def apply(x: A): B
 }
 ```
 
@@ -105,10 +108,11 @@ trait Function1[A, B] {
 An anonymous function such as `(x: Int) => x * x` is expanded to
 
 ```scala
-{ class AnonFun extends Function1[Int, Int] {
-		def apply(x: Int) = x * x
-	}
-	new AnonFun
+{
+  class AnonFun extends Function1[Int, Int] {
+    def apply(x: Int) = x * x
+  }
+  new AnonFun
 }
 ```
 
@@ -116,7 +120,7 @@ Or, shorter, using anonymous class syntax, like in Java:
 
 ```scala
 new Function1[Int, Int] {
-	def apply(x: Int) = x * x
+  def apply(x: Int) = x * x
 }
 ```
 
@@ -134,7 +138,7 @@ would be
 
 ```scala
 val f = new Function1[Int, Int] {
-	def apply(x: Int) = x * x
+  def apply(x: Int) = x * x
 }
 f.apply(7)
 ```
@@ -142,27 +146,29 @@ f.apply(7)
 ### Functions and Methods
 
 Note that anything defined with a def, ie, a method, like
+
 ```scala 
 def f(x: Int): Boolean = ...
 ``` 
 
-is not itself a function value; but if the name of a method is used in a place where a function type is expected, it's converted automatically to the function value.
+is not itself a function value; but if the name of a method is used in a place where a function type is expected, it's
+converted automatically to the function value.
 
 ## <a name='Functions'>Functions</a>
 
 Functions are first-class citizens
 
-- We can use functions as values or like normal variables; we can replace a variable or value with a function 
-- We can assign a function literal to a variable 
-- We can pass one or more functions as another function's parameters 
+- We can use functions as values or like normal variables; we can replace a variable or value with a function
+- We can assign a function literal to a variable
+- We can pass one or more functions as another function's parameters
 - We can return a function from another function
 
 ### Higher Order Functions in Scala
 
-A function is called Higher Order Function if it contains other functions as a parameter or returns a function as an output
+A function is called Higher Order Function if it contains other functions as a parameter or returns a function as an
+output
 
 eg: map is a HOF in scala which take function as an input
-
 
 ```scala
 val list = 1 :: 2 :: 3 :: Nil
@@ -173,6 +179,7 @@ list.map(x => multiplyBy2(x))
 ### Function Currying
 
 Currying is converting a single function of n arguments into n functions with a single argument each
+
 ```scala
 val curriedSum: Int => Int => Int = x => y => x + y
 println(curriedSum(1)(2))
@@ -183,17 +190,16 @@ val curriedSum2: Int => Int => Int = (sum _).curried
 val curriedSum3: Int => Int => Int = sum
 ```
 
-
-
 ### Partially Applied Function
 
 A partially applied function is a function where some of its arguments have already been filled in.
+
 ```scala
 def log(time: Long, message: String) = {
   s"$time $message"
 }
 
-val logVal = log(System.nanoTime(),_)
+val logVal = log(System.nanoTime(), _)
 ```
 
 ### Partial Function
@@ -202,47 +208,55 @@ val logVal = log(System.nanoTime(),_)
 - PartialFunction is a trait
 
 ```scala
-trait PartialFunction[-A, +B] extends (A) => B
+trait PartialFunction[-A, +B] extends (A)
+
+=> B
 
 val squareRoot: PartialFunction[Double, Double] = {
-   def apply(x: Double) = Math.sqrt(x)
-   def isDefinedAt(x: Double) = x >= 0
+  def apply(x: Double) = Math.sqrt(x)
+
+  def isDefinedAt(x: Double) = x >= 0
 }
 
 
 type Validator = PartialFunction[Int, Int]
 
 val negativeToPositive = new Validator {
-   override def isDefinedAt(x: Int) = x < 0
-   override def apply(x: Int) =Math.abs(x)
+  override def isDefinedAt(x: Int) = x < 0
+
+  override def apply(x: Int) = Math.abs(x)
 }
 
 val positiveToNegative = new Validator {
-   override def isDefinedAt(x: Int) = x > 0
-   override def apply(x: Int) = -1 * x
+  override def isDefinedAt(x: Int) = x > 0
+
+  override def apply(x: Int) = -1 * x
 }
 
 val default = new Validator {
-   override def isDefinedAt(x: Int): Boolean = true
+  override def isDefinedAt(x: Int): Boolean = true
 
-   override def apply(x: Int) = 0
+  override def apply(x: Int) = 0
 }
 
 val numVal = negativeToPositive
-        .orElse(positiveToNegative)
-        .orElse(default)
+  .orElse(positiveToNegative)
+  .orElse(default)
 
 
 //Collect uses partial function instead of predicate in filter
 val parseRange: PartialFunction[Int, Int] = {
-   case x: Int if x > 10 => x + 1
+  case x: Int if x > 10 => x + 1
 }
-List(15, 3, "aString") collect { parseRange }
+List(15, 3, "aString") collect {
+  parseRange
+}
 ```
 
 ### Anonymous Function [Expansion](#expansion-of-function-values)
 
-- Anonymous function in Scala — also known as a function literal using which you can pass it into a method that takes a function, or to assign it to a variable.
+- Anonymous function in Scala — also known as a function literal using which you can pass it into a method that takes a
+  function, or to assign it to a variable.
 
 ```scala
 val list = 1 :: 2 :: 3 :: Nil
@@ -265,10 +279,10 @@ val addNumber = (i: Int) => {
 println(addNumber(10))
 ```
 
-
 ### Function Composition
 
-- Given two functions, f: X -> Y and g: Y -> Z, we can define their composition as a function h = g ∘ f : X -> Z, where h(x) = g(f(x))
+- Given two functions, f: X -> Y and g: Y -> Z, we can define their composition as a function h = g ∘ f : X -> Z, where
+  h(x) = g(f(x))
 - Function composition is always associative: f ∘ (g ∘ h) = (f ∘ g) ∘ h.
 - The trait Function1[T1, R] defines methods to compose functions.
 - There are two ways to compose such functions, according to Function1: compose and andThen.
@@ -276,13 +290,14 @@ println(addNumber(10))
 
 ```scala
     val add1 = (i: Int) => i + 1
-    val double = (i: Int) => i * 2
-    val addComposeDouble =  double compose add1
-    println(addComposeDouble(1))
+val double = (i: Int) => i * 2
+val addComposeDouble = double compose add1
+println(addComposeDouble(1))
 
-    val doubleAndThenAdd = add1 andThen double
-    println(doubleAndThenAdd(1))
+val doubleAndThenAdd = add1 andThen double
+println(doubleAndThenAdd(1))
 ```
+
 - .tupled is used in case of multiple parameters (Present inside Function trait)
 
 ```scala
@@ -295,7 +310,8 @@ def tupled: Tuple2[T1, T2] => R = {
 
 ### Parametric Polymorphism
 
-We can easily recognize parametrically polymorphic functions in Scala by the presence of one or more type parameters delimited by square brackets in the method signature — they enable us to apply the same logic to different data types.
+We can easily recognize parametrically polymorphic functions in Scala by the presence of one or more type parameters
+delimited by square brackets in the method signature — they enable us to apply the same logic to different data types.
 
 **The Naive Solution** : Below works well for integer arrays but is not reusable for other types:
 
@@ -306,50 +322,54 @@ def pairWiseReverseInt(xs: List[Int]): List[Int] = xs.grouped(2).flatMap(_.rever
 **DRY Solution** : With parametric polymorphism, the logic remains the same for all the different types
 
 ```scala
-def pairWiseReverse[A](xs:List[A]): List[A] = xs.grouped(2).flatMap(_.reverse).toList
+def pairWiseReverse[A](xs: List[A]): List[A] = xs.grouped(2).flatMap(_.reverse).toList
 ```
 
-**Subtype Polymorphism** : The key concept in subtype polymorphism is substitutability as defined in the Liskov substitution principle
+**Subtype Polymorphism** : The key concept in subtype polymorphism is substitutability as defined in the Liskov
+substitution principle
 
 ```scala
 trait Shape {
-    def getArea: Double
-}
-case class Square(side: Double) extends Shape {
-    override def getArea: Double = side * side
-}
-case class Circle(radius: Double) extends Shape {
-    override def getArea: Double = Math.PI * radius * radius
+  def getArea: Double
 }
 
-def printArea[T <: Shape](shape: T): Double = (math.floor(shape.getArea) * 100)/100
+case class Square(side: Double) extends Shape {
+  override def getArea: Double = side * side
+}
+
+case class Circle(radius: Double) extends Shape {
+  override def getArea: Double = Math.PI * radius * radius
+}
+
+def printArea[T <: Shape](shape: T): Double = (math.floor(shape.getArea) * 100) / 100
 ```
 
-**Ad-Hoc Polymorphism** : The compiler switches between different code implementations depending on the type of input a method receives.
+**Ad-Hoc Polymorphism** : The compiler switches between different code implementations depending on the type of input a
+method receives.
 
-**Method Overloading** : When calling **.sorted** method on list scala knows via Method Overloading to call which function, but this doesn't apply to custom classes, 
-where in we have to provide an implementation of Ordering type.
+**Method Overloading** : When calling **.sorted** method on list scala knows via Method Overloading to call which
+function, but this doesn't apply to custom classes, where in we have to provide an implementation of Ordering type.
 
 ```scala
     val ord: Ordering[StudentId] = (x, y) => x.id.compareTo(y.id)
 ```
 
-**Operator Overloading** : Scala supports operator overloading, which means that the meaning of operators (such as * and +) may be defined for arbitrary types.
+**Operator Overloading** : Scala supports operator overloading, which means that the meaning of operators (such as * and
++) may be defined for arbitrary types.
 
 ```scala
-class Complex(val real : Double, val imag : Double) {
-  def +(other : Complex) = new Complex(
+class Complex(val real: Double, val imag: Double) {
+  def +(other: Complex) = new Complex(
     real + other.real,
     imag + other.imag)
 
 
-  def (other : Complex) = new Complex(
+  def (other: Complex) = new Complex(
     realother.real - imagother.imag,
-    imagother.real + real*other.imag)
+    imagother.real + real * other.imag)
 
 
-
-  def magnitude() : Double = Math.sqrt(realreal + imagimag)
+  def magnitude(): Double = Math.sqrt(realreal + imagimag)
 }
 
 var C = new Complex(x, y)
@@ -357,29 +377,30 @@ var Z = new Complex(0.0, 0.0)
 
 var count = 0
 while (count < THRESHOLD && Z.magnitude() < 2.0) {
-  Z = Z*Z + C
+  Z = Z * Z + C
   count += 1
 }
 ```
 
 This code determines whether a complex number C
 
-
 ## <a name='Variances'>Variances in Scala</a>
 
-Variance is the interconnection of subtyping relationship between complex types and their component types.
-There are three types of variance: covariance, contravariance, and invariance.
+Variance is the interconnection of subtyping relationship between complex types and their component types. There are
+three types of variance: covariance, contravariance, and invariance.
 
 ### Covariance F[+T]
 
-We say that a type constructor F[_] is covariant if B is a subtype of type A and F[B] is a subtype of type F[A].
-eg: If S is subtype of T then List[S] is a subtype of List[T].
+We say that a type constructor F[_] is covariant if B is a subtype of type A and F[B] is a subtype of type F[A]. eg: If
+S is subtype of T then List[S] is a subtype of List[T].
 
 Covariance is type-safe because it reflects the standard behavior of subtyping.
 
 ```scala
 class Shape[+T](polygon: T)
+
 sealed trait Polygon
+
 case object Parallelogram extends Polygon
 
 val shape: Shape[Polygon] = new Shape[Parallelogram](List(new Parallelogram))
@@ -389,9 +410,9 @@ In Scala : List[T], Option[T], and Try[T].
 
 ### Contravariance F[-T]
 
-We say that a type constructor F[_] is contravariant if B is a subtype of type A and F[A] is a subtype of type F[B]. This relation is precisely the contrary of the covariance relation.
-eg: If S is subtype of T then List[T] is a subtype of List[S].
-
+We say that a type constructor F[_] is contravariant if B is a subtype of type A and F[A] is a subtype of type F[B].
+This relation is precisely the contrary of the covariance relation. eg: If S is subtype of T then List[T] is a subtype
+of List[S].
 
 ```scala
 trait Vet[-T] { // we can also insert an optional -T <: Animal here if we wanted to impose a type constraint
@@ -399,21 +420,28 @@ trait Vet[-T] { // we can also insert an optional -T <: Animal here if we wanted
 }
 
 val myDog = new Dog("Buddy")
-val myVet: Vet[Dog] = new Vet[Animal] { ... }
+val myVet: Vet[Dog] = new Vet[Animal] {
+  ...
+}
 myVet.heal(myDog)
 ```
 
-We're declaring a Vet[Dog], and instead we have a Vet[Animal], with the meaning that the vet can heal any animal; therefore, it can work on my dog as well. The code will compile, our buddy will live, and we would be happy.
+We're declaring a Vet[Dog], and instead we have a Vet[Animal], with the meaning that the vet can heal any animal;
+therefore, it can work on my dog as well. The code will compile, our buddy will live, and we would be happy.
 
 ### Invariance F[_]
 
-We say that a type constructor F[_] is invariant if any subtype relationship between types A and B is not preserved in any order between types F[A] and F[B].
+We say that a type constructor F[_] is invariant if any subtype relationship between types A and B is not preserved in
+any order between types F[A] and F[B].
 
-eg: If S is subtype of T then List[S] and List[T] don’t have inheritance relationship or sub-typing. That means both are unrelated.
+eg: If S is subtype of T then List[S] and List[T] don’t have inheritance relationship or sub-typing. That means both are
+unrelated.
 
 ```scala
 class Shape[T](polygon: T)
+
 case object Parallelogram
+
 case object Rectangle extends Parallelogram
 
 val suite: Shape[Parallelogram] = new Shape[Parallelogram](List(new Parallelogram))
@@ -423,7 +451,7 @@ val suite: Shape[Parallelogram] = new Shape[Parallelogram](List(new Parallelogra
 
 ### Patterns in Match Expression
 
-**Case Classes** 
+**Case Classes**
 
 ```scala
 def caseClassesPatternMatching(animal: Animal): String = {
@@ -518,16 +546,16 @@ def optionsPatternMatching(option: Option[String]): String = {
 ```scala
 def matchType(x: Any): String = x match {
   //case x: List(1, _*) => s"$x"          // doesn't compile
-  case x @ List(1, _*) => s"$x"           // works; prints the list
+  case x@List(1, _*) => s"$x" // works; prints the list
   //case Some(_) => "got a Some"          // works, but can't access the Some
   //case Some(x) => s"$x"                 // works, returns "foo"
-  case x @ Some(_) => s"$x"               // works, returns "Some(foo)"
-  case p @ Person(first, "Doe") => s"$p"  // works, returns "Person(John,Doe)"
+  case x@Some(_) => s"$x" // works, returns "Some(foo)"
+  case p@Person(first, "Doe") => s"$p" // works, returns "Person(John,Doe)"
 }
 
-println(matchType(List(1,2,3)))             // prints "List(1, 2, 3)"
-println(matchType(Some("foo")))             // prints "Some(foo)"
-println(matchType(Person("John", "Doe")))   // prints "Person(John,Doe)"
+println(matchType(List(1, 2, 3))) // prints "List(1, 2, 3)"
+println(matchType(Some("foo"))) // prints "Some(foo)"
+println(matchType(Person("John", "Doe"))) // prints "Person(John,Doe)"
 ```
 
 **Pattern Guards**
@@ -548,21 +576,26 @@ def patternGuards(toMatch: Any, maxLength: Int): String = {
 
 ```scala
 sealed trait Shape
+
 case class Square(height: Int, width: Int) extends Shape
+
 case class Circle(radius: Int) extends Shape
+
 case object Point extends Shape
 
 
 def matchShape(shape: Shape): String = shape match {
-    case Square(height, width) => "It's a square"
-    case Circle(radius)        => "It's a circle"
-    //no case for Point because it would cause a compiler warning. Scala will check at compile-time that all cases are 'exhaustively matched'
+  case Square(height, width) => "It's a square"
+  case Circle(radius) => "It's a circle"
+  //no case for Point because it would cause a compiler warning. Scala will check at compile-time that all cases are 'exhaustively matched'
 }
 ```
 
-### Extractors 
+### Extractors
 
-Extractor objects are objects containing a method called unapply. This method is executed when matching against a pattern is successful.
+Extractor objects are objects containing a method called unapply. This method is executed when matching against a
+pattern is successful.
+
 ```scala
 object Person {
   def apply(fullName: String) = fullName
@@ -599,7 +632,6 @@ def catchBlocksPatternMatching(exception: Exception): String = {
 }
 ```
 
-
 **Closures**
 
 ```scala
@@ -608,13 +640,14 @@ def closuresPatternMatching(list: List[Any]): List[Any] = {
 }
 ```
 
-
 ## <a name='collections'>Collections</a>
 
 ![](sections/resources/CollectionHierarchy.png)
 
-- The Traversable trait allows us to traverse an entire collection. It’s a base trait for all other collections. It implements the common behavior in terms of a foreach method.
-- The Iterable trait is the next trait from the top of the hierarchy and a base trait for iterable collections. It defines an iterator which allows us to loop through a collection’s elements one at a time.
+- The Traversable trait allows us to traverse an entire collection. It’s a base trait for all other collections. It
+  implements the common behavior in terms of a foreach method.
+- The Iterable trait is the next trait from the top of the hierarchy and a base trait for iterable collections. It
+  defines an iterator which allows us to loop through a collection’s elements one at a time.
 
 - [Performance Characteristics](https://docs.scala-lang.org/overviews/collections-2.13/performance-characteristics.html)
 - [Performance Benchmarks](https://docs.google.com/presentation/d/13SAn0Ru9g77T1EInCZ-7HVbEcqIMVQstVgjZFiBB4bA/present?slide=id.i135)
@@ -626,11 +659,13 @@ def closuresPatternMatching(list: List[Any]): List[Any] = {
 
 ### List
 
-- Scala lists internally represent an immutable linked list. 
+- Scala lists internally represent an immutable linked list.
 - It maintains the order of elements and can contain duplicates as well.
 - This class is optimal for last-in-first-out (LIFO), stack-like access patterns.
-- It also implements structural sharing of the tail list. This means that many operations have either a constant memory footprint or no memory footprint at all.
-- This List class comes with two implementing case classes, scala.Nil and scala.::, that implement the abstract members isEmpty, head, and tail.
+- It also implements structural sharing of the tail list. This means that many operations have either a constant memory
+  footprint or no memory footprint at all.
+- This List class comes with two implementing case classes, scala.Nil and scala.::, that implement the abstract members
+  isEmpty, head, and tail.
 
 - [Why are Scala's `Lists` implemented as linked lists and not arrays](https://stackoverflow.com/questions/5130097/why-are-scalas-lists-implemented-as-linked-lists)
 - [Why is appending to a list bad?](https://stackoverflow.com/a/1320171) (Prepend O(1) vs Append O(n))
@@ -641,116 +676,152 @@ def closuresPatternMatching(list: List[Any]): List[Any] = {
 - The default Scala Map is immutable. To use a mutable Map, we use the scala.collection.mutable.Map class.
 - We can't change existing data in immutable Map, we need to assign it to new val
 
-- Adding element : +/put 
+- Adding element : +/put
 - Removing element : -
-- Concatenating Maps : ++ Operator 
-- Get element : map(key) (.apply) returns element and gives exception if it doesn't exist, map.get(key) return Option[element]
+- Concatenating Maps : ++ Operator
+- Get element : map(key) (.apply) returns element and gives exception if it doesn't exist, map.get(key) return
+  Option[element]
 
 ### Set
 
 - Scala Set is a collection of unique elements.
 - By default, Scala uses immutable sets. But if you want, you can import the scala.collection.mutable.Set class
 - We can't change existing data in immutable Set, we need to assign it to new val
-- **Set intersect is better than list on list filter when it comes to performance, For Map we can use .keySet intersect and .map values**
+- **Set intersect is better than list on list filter when it comes to performance, For Map we can use .keySet intersect
+  and .map values**
 
-- Adding element : +/put 
-- Removing element : - 
-- Concatenating Maps : ++ Operator 
-- Get element : set(key) (.apply) returns element and gives exception if it doesn't exist, set.get(key) return Option[element]
+- Adding element : +/put
+- Removing element : -
+- Concatenating Maps : ++ Operator
+- Get element : set(key) (.apply) returns element and gives exception if it doesn't exist, set.get(key) return
+  Option[element]
 
 ### Tuples
 
-- It is a collection of heterogeneous types of objects that is different types of objects which combine a fixed number of items together.
+- It is a collection of heterogeneous types of objects that is different types of objects which combine a fixed number
+  of items together.
 - Tuple2 to Tuple22
 - Case classes have named elements. The names can improve the readability of some kinds of code.
 
 ## Functional Combinators
 
-- [Reason to prefer `filter+map` over `collect`?](https://stackoverflow.com/a/36962581) Partial functions are slower than predicates
+- [Reason to prefer `filter+map` over `collect`?](https://stackoverflow.com/a/36962581) Partial functions are slower
+  than predicates
 - [Filter vs withFilter](https://www.baeldung.com/scala/filter-vs-withfilter)
 
 ### map
+
 Evaluates a function over each element in the list, returning a list with the same number of elements.
+
 ```scala
 numList.map((i: Int) => i * 2) //Return list of Numbers
 ```
 
 ### foreach
+
 Foreach is like map but returns nothing. foreach is intended for side-effects only.
+
 ```scala
 numList.foreach((i: Int) => i * 2) //Returns Unit
 ```
 
 ### filter
-Removes any elements where the function you pass in evaluates to false. Functions that return a Boolean are often called predicate functions.
+
+Removes any elements where the function you pass in evaluates to false. Functions that return a Boolean are often called
+predicate functions.
+
 ```scala
 def isEven(i: Int): Boolean = i % 2 == 0
 
 numList.filter(isEven) //Return list of Even Numbers
 ```
 
-### zip 
+### zip
+
 Zip aggregates the contents of two lists into a single list of pairs.
+
 ```scala
 List(1, 2, 3).zip(List("a", "b", "c")) //List[(Int, String)] = List((1,a), (2,b), (3,c))
 ```
 
 ### zipWithIndex
+
 ```scala
 List("a", "b", "c").zipWithIndex //List[(String, Int)] = List((a,0), (b,1), (c,2))
 ```
 
 ### partition
+
 partition splits a list based on where it falls with respect to a predicate function.
+
 ```scala
 numList.partition(_ % 2 == 0) //(List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
 ```
 
 ### find
+
 find returns the first element of a collection that matches a predicate function.
+
 ```scala
 numList.find((i: Int) => i > 5) //Option[Int] = Some(6)
 ```
 
 ### drop & dropWhile
+
 drop drops the first i elements
+
 ```scala
 numList.drop(5) //List[Int] = List(6, 7, 8, 9, 10)
 ```
 
-dropWhile removes the first element that match a predicate function. For example, if we dropWhile odd numbers from our list of numbers, 1 gets dropped (but not 3 which is “shielded” by 2).
+dropWhile removes the first element that match a predicate function. For example, if we dropWhile odd numbers from our
+list of numbers, 1 gets dropped (but not 3 which is “shielded” by 2).
+
 ```scala
 numList.dropWhile(_ % 2 != 0) //List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
 ```
 
 ### foldLeft
+
 uses accumulator
+
 ```scala
 numList.foldLeft(0)((m: Int, n: Int) => m + n)
 ```
 
 ### flatten
+
 flatten collapses one level of nested structure.
+
 ```scala
 List(List(1, 2), List(3, 4)).flatten //List[Int] = List(1, 2, 3, 4)
 ```
 
 ### flatMap
-flatMap is a frequently used combinator that combines mapping and flattening. flatMap takes a function that works on the nested lists and then concatenates the results back together.
+
+flatMap is a frequently used combinator that combines mapping and flattening. flatMap takes a function that works on the
+nested lists and then concatenates the results back together.
+
 ```scala
 List(List(1, 2), List(3, 4)).flatMap(x => x.map(_ * 2)) //List[Int] = List(2, 4, 6, 8)
 ```
 
-### collect 
-The collect method takes a Partial Function as its parameter and applies it to all the elements in the collection to create a new collection which satisfies the Partial Function.
+### collect
+
+The collect method takes a Partial Function as its parameter and applies it to all the elements in the collection to
+create a new collection which satisfies the Partial Function.
+
 ```scala
-numList.collect{ case num if num/2 == 0 => (num, num+1) }.toMap
+numList.collect { case num if num / 2 == 0 => (num, num + 1) }.toMap
 ```
 
 ### withFilter
+
 - returns FilterMonadic[A, Repr]
-- When we have to provide more than one filtering operation, it’s better from a performance point of view to use withFilter.
-- If we only want to apply a single predicate without any mapping on the result, we should use the filter method to provide us the collection directly.
+- When we have to provide more than one filtering operation, it’s better from a performance point of view to use
+  withFilter.
+- If we only want to apply a single predicate without any mapping on the result, we should use the filter method to
+  provide us the collection directly.
 
 ```scala
 List("a", "b", "c").withFilter(_ == "b").withFilter(_ == "c").map(x => x)
@@ -759,17 +830,18 @@ List("a", "b", "c").withFilter(_ == "b").withFilter(_ == "c").map(x => x)
 
 ### view
 
-- View produces a lazy collection, so that calls to e.g. filter do not evaluate every element of the collection. Elements are only evaluated once they are explicitly accessed.
+- View produces a lazy collection, so that calls to e.g. filter do not evaluate every element of the collection.
+  Elements are only evaluated once they are explicitly accessed.
 - Better for .take /.dropWhile etc operations
 
 ```scala
 List("a", "b", "c").view.filter(_ == "b").filter(_ == "c").map(x => x) //scala.collection.SeqView[String,Seq[_]] = SeqViewFFM(...)
 ```
 
-
 ## Monads
 
-- Monads are nothing more than a mechanism to sequence computations around values augmented with some additional feature.
+- Monads are nothing more than a mechanism to sequence computations around values augmented with some additional
+  feature.
 - Such features are called effects.
 
 - [Declutter Your Code With Monadic Design](https://www.youtube.com/watch?v=Mw_Jnn_Y5iA)
@@ -777,17 +849,40 @@ List("a", "b", "c").view.filter(_ == "b").filter(_ == "c").map(x => x) //scala.c
 - [Monads Blog](https://blog.rockthejvm.com/monads/)
 
 ```scala
-for(x <- c1; y <- c2; z <-c3) {...}          c1.foreach(x => c2.foreach(y => c3.foreach(z => {...})))
-for(x <- c1; y <- c2; z <- c3) yield {...}   c1.flatMap(x => c2.flatMap(y => c3.map(z => {...})))
-for(x <- c; if cond) yield {...}             c.withFilter(x => cond).map(x => {...})
-for(x <- c; y = ...) yield {...}             c.map(x => (x, ...)).map((x,y) => {...})
+for (x <- c1; y <- c2; z <- c3) {
+  ...
+} c1
+.foreach(x => c2.foreach(y => c3.foreach(z => {
+  ...
+})))
+for (x <- c1; y <- c2; z <- c3) yield {
+  ...
+} c1
+.flatMap(x => c2.flatMap(y => c3.map(z => {
+  ...
+})))
+for (x <- c; if cond) yield {
+  ...
+} c
+.withFilter(x => cond).map(x => {
+  ...
+})
+for (x <- c; y =
+...) yield
+{
+  ...
+} c
+.map(x => (x,.
+..) ).map((x, y) => {
+  ...
+})
 for {
-   sl <- l
-   el <- sl
-   if el > 0
-} yield el.toString.length                   l.flatMap(sl => sl.filter(el => el > 0).map(el => el.toString.length))
+  sl <- l
+  el <- sl
+  if el > 0
+} yield el.toString.length l
+.flatMap(sl => sl.filter(el => el > 0).map(el => el.toString.length))
 ```
-
 
 ````scala
 
@@ -798,10 +893,10 @@ case class SafeValue[+T](private val internalValue: T) { //"constructor" = pure 
     // replace the logic here with code that might be interesting for any reason
     internalValue
   }
-   
-   def flatMap[S](transformer:T => SafeValue[S]) : SafeValue[S] = synchronized{ //bind or flatMap
-      transformer(internalValue)
-   }
+
+  def flatMap[S](transformer: T => SafeValue[S]): SafeValue[S] = synchronized { //bind or flatMap
+    transformer(internalValue)
+  }
 }
 
 //Sequential ETW
@@ -818,14 +913,16 @@ val upperSafeString2 = safeString.transform(s => SafeValue(s.toUpperCase))
 ````
 
 ETW
-1. the ability to wrap a value into my (more interesting) type - in OO terms this is just a "constructor"; we call this _unit_, or _pure_, or _apply_
-2. a function that transforms a wrapper into another wrapper (perhaps of another type) in the same style as the above - we usually call this _bind_ or _flatMap_
 
+1. the ability to wrap a value into my (more interesting) type - in OO terms this is just a "constructor"; we call
+   this _unit_, or _pure_, or _apply_
+2. a function that transforms a wrapper into another wrapper (perhaps of another type) in the same style as the above -
+   we usually call this _bind_ or _flatMap_
 
 ```scala
 case class Person(firstName: String, lastName: String) {
-    // you have a requirement that these fields must not be nulls
-    assert(firstName != null && lastName != null)
+  // you have a requirement that these fields must not be nulls
+  assert(firstName != null && lastName != null)
 }
 
 // Java Style - messy, too much nesting
@@ -842,20 +939,21 @@ def getPerson(firstName: String, lastName: String): Person =
 
 //
 def getPersonBetter(firstName: String, lastName: String): Option[Person] =
-   Option(firstName).flatMap { fName =>
-      Option(lastName).flatMap { lName =>
-         Option(Person(fName, lName))
-      }
-   }
+  Option(firstName).flatMap { fName =>
+    Option(lastName).flatMap { lName =>
+      Option(Person(fName, lName))
+    }
+  }
 
 //for comprehension
 def getPersonFor(firstName: String, lastName: String): Option[Person] = for {
-   fName <- Option(firstName)
-   lName <- Option(lastName)
+  fName <- Option(firstName)
+  lName <- Option(lastName)
 } yield Person(fName, lName)
 ```
 
 **MyMonad(x).flatMap(f).flatMap(g) == MyMonad(x).flatMap(x => f(x).flatMap(g))**
+
 ```scala
 numbers.flatMap(incrementer).flatMap(doubler) == numbers.flatMap(x => incrementer(x).flatMap(doubler))
 ```
@@ -890,8 +988,9 @@ functionTakingString(42) // evaluates to "The value is 42"
 
 //3. implicit classes
 case class StringOps(str: String) {
-   def yell = str.toUpperCase() + "!"
-   def isQuestion = str.endsWith("?")
+  def yell = str.toUpperCase() + "!"
+
+  def isQuestion = str.endsWith("?")
 }
 
 implicit def stringToStringOps(str: String): StringOps = StringOps(str)
@@ -900,10 +999,11 @@ implicit def stringToStringOps(str: String): StringOps = StringOps(str)
 "How are you?".isQuestion // evaluates to 'true'
 
 object Helpers {
-   implicit class StringOps(str: String) {
-      def yell = str.toUpperCase() + "!"
-      def isQuestion = str.endsWith("?")
-   }
+  implicit class StringOps(str: String) {
+    def yell = str.toUpperCase() + "!"
+
+    def isQuestion = str.endsWith("?")
+  }
 }
 
 "Hello world".yell // evaluates to "HELLO WORLD!"
@@ -912,20 +1012,23 @@ object Helpers {
 //4. implicit objects
 // Our interface
 trait Monoid[A] {
-   def zero: A
-   def plus(a: A, b: A): A
+  def zero: A
+
+  def plus(a: A, b: A): A
 }
 
 // Implementation for integers
 implicit object IntegerMonoid extends Monoid[Int] {
-   override def zero: Int = 0
-   override def plus(a: Int, b: Int): Int = a + b
+  override def zero: Int = 0
+
+  override def plus(a: Int, b: Int): Int = a + b
 }
 
 // Implementation for strings
 implicit object StringMonoid extends Monoid[String] {
-   override def zero: String = ""
-   override def plus(a: String, b: String): String = a.concat(b)
+  override def zero: String = ""
+
+  override def plus(a: String, b: String): String = a.concat(b)
 }
 
 // Could be implementation for custom classes, etc..
@@ -939,7 +1042,7 @@ def sum[A](values: Seq[A])(implicit ev: Monoid[A]): A = values.foldLeft(ev.zero)
 - [More about using and given in Scala3](https://www.youtube.com/watch?v=fStjOA0Wep4)
 - [How Givens Can Work with Implicits](https://blog.rockthejvm.com/givens-and-implicits/)
 
-## Functors
+## [Functors](https://medium.com/beingprofessional/understanding-functor-and-monad-with-a-bag-of-peanuts-8fa702b3f69e)
 
 ```scala
 def do10xList(list: List[Int]): List[Int] = list.map(_ * 10)
@@ -947,9 +1050,15 @@ def do10xOption(option: Option[Int]): Option[Int] = option.map(_ * 10)
 def do10xTry(attempt: Try[Int]): Try[Int] = attempt.map(_ * 10)
 ```
 
-- In case we want to add one more type for map , we would have to duplicate the code above, which is against DRY principle.Here Functors comes for our rescue.
+- Unwrap (fetch) the value from the context.
+- Apply the function to the value.
+- Re-wrap the resultant into the context.
+
+- In case we want to add one more type for map , we would have to duplicate the code above, which is against DRY
+  principle.Here Functors comes for our rescue.
 - Functors embody the concept of “mappable” data structures.
-- We use Functors to generalize our APIs, so that we don’t have to write the same transformations on different data structures.
+- We use Functors to generalize our APIs, so that we don’t have to write the same transformations on different data
+  structures.
 
 ```scala
 trait Functor[C[_]] {
@@ -958,35 +1067,76 @@ trait Functor[C[_]] {
 
 //Scala 2 we would have used implicits 
 given listFunctor as Functor[List] {
-   override def map[A, B](container: List[A])(f: A => B) = container.map(f)
+  override def map[A, B](container: List[A])(f: A => B) = container.map(f)
 }
 
-def do10x[C[_]](container: C[Int])(using functor: Functor[C]) = functor.map(container)(_ * 10)
+def do10x[C[_]](container: C[Int])(using
+functor: Functor[C]
+) = functor.map(container)(_ * 10)
 
-do10x(List(1,2,3))   //Injection of functor do10x(List(1,2,3))(using listFunctor) 
+do10x(List(1, 2, 3)) //Injection of functor do10x(List(1,2,3))(using listFunctor) 
 ```
 
 ## Parallelism vs Concurrency
 
-- Parallelism is about doing a lot of things at once. In java we can use Spark. When multiple tasks OR several parts of a unique task literally run at the same time. Requires more than 1 CPU.
-- Concurrency is about dealing with a lot of things at once. Shared resource is to be accessed/updated OR Multiple tasks needs to coordinate. To deal with concurrency we can use - Akka
+- Parallelism is about doing a lot of things at once. In java we can use Spark. When multiple tasks OR several parts of
+  a unique task literally run at the same time. Requires more than 1 CPU.
+- Concurrency is about dealing with a lot of things at once. Shared resource is to be accessed/updated OR Multiple tasks
+  needs to coordinate. To deal with concurrency we can use - Akka
 
 ## Akka
 
-- Akka is a open-source library or a toolkit written in Scala to create concurrent, distributed and fault-tolerant application.
+- Akka is a open-source library or a toolkit written in Scala to create concurrent, distributed and fault-tolerant
+  application.
 - Akka is written in Scala
 - It implements Actor Based Model
 - Akka makes it easier to write correct concurrent and parallel application.
 
+### Actor
 
-### Actor 
-
-- An actor is an entity which communicates to other actor by message passing. 
+- An actor is an entity which communicates to other actor by message passing.
 - We can say that an actor is an object that encapsulates state and behavior.
-
 
 ### ActorSystem
 
 - The ActorSystem is a root actor in actors structure
-- An ActorSystem is a hierarchical group of actors which share common configuration, e.g. dispatchers, deployments, remote capabilities and addresses.
+- An ActorSystem is a hierarchical group of actors which share common configuration, e.g. dispatchers, deployments,
+  remote capabilities and addresses.
 - It is also the entry point for creating or looking up actors.
+
+```scala
+
+sealed trait BankAccountMessage
+
+case class Deposit(amount: Int) extends BankAccountMessage
+
+case class Withdraw(amount: Int) extends BankAccountMessage
+
+case object PrintBalance extends BankAccountMessage
+
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
+
+object Main extends App {
+   /*State is also part of the behaviour, so if a message wants to make a change to state, then you need to return a new behaviour with modified state.*/
+  def behavior(balance: Int): Behavior[BankAccountMessage] = Behaviors.receiveMessage {
+    case Deposit(amount) => behavior(balance + amount)
+    case Withdraw(amount) => behavior(balance - amount)
+    case PrintBalance =>
+      println(s"balance = $balance")
+      behavior(balance)
+  }
+
+  /*Creating ActorSystem will require a guardian behaviour. With guardian behaviour, actor system creates a top level (system level) actor and  you can send messages to the guardian actor which will then create child actors at user level. Akka recommends creating all business related actors at user level. This is because if a system actor crashes due an exception, entire actor system will crash destroying all other system and user actors. */
+  val actorSystem = ActorSystem(Behaviors.empty, name = "MyBankActorSystem")
+  val account1: ActorRef[BankAccountMessage] = actorSystem.systemActorOf(behavior(balance = 0), "account1")
+  println(account1)
+
+  account1 ! PrintBalance
+  account1 ! Deposit(200)
+  account1 ! Withdraw(50)
+  account1 ! PrintBalance
+
+  actorSystem.terminate()
+}
+```
