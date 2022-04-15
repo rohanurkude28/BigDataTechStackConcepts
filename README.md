@@ -8,6 +8,13 @@
 
 [How to Pass the Engineering Interview in 2021](https://davidbyttow.medium.com/how-to-pass-the-engineering-interview-in-2021-45f1b389a1)
 
+Below things are considered to classify data under Big data :
+1. Volume - 2314 Exabyte of data is collected annually
+2. Velocity - In form of Patients records and test results are very high speed
+3. Variety - Structured (Excels), Semi Structured(Logs, Jsons) and Unstructured (Pictures, xrays)
+4. Veracity - Accuracy and Trustworthiness
+5. Value - Faster disease detection, reduced cost and better treatment 
+
 ### Spark vs Hadoop
 
 Big data processing is just computation of iterative algorithms. Below is difference between Hadoop and Spark:
@@ -15,7 +22,6 @@ Big data processing is just computation of iterative algorithms. Below is differ
 ![](sections/resources/BigDataIteration.png)
 
 [Sample Code Flow](https://cm.engineering/10-tips-in-writing-a-spark-job-in-scala-cc837149a173)
-[EMR Deployment](https://cm.engineering/automating-deployments-for-sparks-structured-streaming-on-aws-emr-cf940d6a588a)
 
 - Spark uses the Hadoop MapReduce distributed computing framework as its foundation. Spark was intended to improve on several aspects of the MapReduce project, such as performance and ease of use while preserving many of MapReduce's benefits.
 - Spark needs a lot of RAM for computation purposes, hence we should prefer it for AI/ML or streaming real time data

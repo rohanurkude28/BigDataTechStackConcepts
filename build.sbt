@@ -7,7 +7,7 @@ ThisBuild / organizationName := "rohanurkude28"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "ScalaConcepts",
+    name := "BigDataTechStackConcepts",
     libraryDependencies += scalaTest % Test,
     libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.6.5"
 
