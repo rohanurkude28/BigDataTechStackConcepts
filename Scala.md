@@ -849,39 +849,15 @@ List("a", "b", "c").view.filter(_ == "b").filter(_ == "c").map(x => x) //scala.c
 - [Monads Blog](https://blog.rockthejvm.com/monads/)
 
 ```scala
-for (x <- c1; y <- c2; z <- c3) {
-  ...
-} c1
-.foreach(x => c2.foreach(y => c3.foreach(z => {
-  ...
-})))
-for (x <- c1; y <- c2; z <- c3) yield {
-  ...
-} c1
-.flatMap(x => c2.flatMap(y => c3.map(z => {
-  ...
-})))
-for (x <- c; if cond) yield {
-  ...
-} c
-.withFilter(x => cond).map(x => {
-  ...
-})
-for (x <- c; y =
-...) yield
-{
-  ...
-} c
-.map(x => (x,.
-..) ).map((x, y) => {
-  ...
-})
+for(x <- c1; y <- c2; z <-c3) {...}          c1.foreach(x => c2.foreach(y => c3.foreach(z => {...})))
+for(x <- c1; y <- c2; z <- c3) yield {...}   c1.flatMap(x => c2.flatMap(y => c3.map(z => {...})))
+for(x <- c; if cond) yield {...}             c.withFilter(x => cond).map(x => {...})
+for(x <- c; y = ...) yield {...}             c.map(x => (x, ...)).map((x,y) => {...})
 for {
   sl <- l
   el <- sl
   if el > 0
-} yield el.toString.length l
-.flatMap(sl => sl.filter(el => el > 0).map(el => el.toString.length))
+} yield el.toString.length                   l.flatMap(sl => sl.filter(el => el > 0).map(el => el.toString.length))
 ```
 
 ````scala

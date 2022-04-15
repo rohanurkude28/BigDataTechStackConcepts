@@ -53,9 +53,9 @@ Terminologies
 - Fault tolerant 
 - Integration with other libraries
 
-- Spark Streaming (RDDs) uses Java Serialisation which helps in catchpoint (restart in case of failure), but when there is upgrade it risks backward compatibility. 
+- **Spark Streaming (RDDs) uses Java Serialisation which helps in catchpoint (restart in case of failure), but when there is upgrade it risks backward compatibility.** 
 - Hence, Spark Structured Streaming(Dataset and dataframes) was introduced.
-- Spark Streaming - Micro Batch processing DStream (Batch Interval), each batch represents a RDD, 
+- **Spark Streaming - Micro Batch processing DStream (Batch Interval), each batch represents a RDD,** 
 - Spark Structured Streaming - Polls data after some duration, recevied data is triggered and appended in continous flow, Dataframes are more optimised
 
 ## Lineages
@@ -71,6 +71,8 @@ Terminologies
 - On calling of _Action_ , created DAG is submitted to DAG scheduler which further splits graph into stages of the task based on the demarcation of shuffling, new stages is created based on the data shuffling requirement.
 - Using DAG we can go any deep dive into whats happening in each stage. Scheduler splits the spark RDD into various stages based on transformation applied Narrow vs Wide.
 - Each Stage has multiple tasks, these stages are based on partition of RDDs, so that same computation can be performed in parallel.
+
+[Apache Spark’s DAG and Physical Execution Plan](https://www.tutorialkart.com/apache-spark/dag-and-physical-execution-plan/)
 
 ## Spark Context vs Spark Session
 
@@ -113,8 +115,9 @@ spark.sparkContext.parallelize
 
 - Basic DS of Spark Framework
 - Immutable distributed collection of objects
-- Each dataset in RDD is divided into logical partitions, which may be computed on different on different nodes of cluster
+- Each dataset in RDD is divided into logical partitions, which may be computed on different nodes of cluster
 - RDD can contain any type of object Java, Scala, Python, including user defined object
+- Every RDD by default has 2 partitions
 - All signature are same except **.aggregate** which has binding parameter (Call be ref) which can cause issue over network
 
 ### RDD Representation
