@@ -84,13 +84,16 @@ Metadata is maintained by two files:
 ![](sections/resources/HDFSWriteMechanism.png)
 
 ### HDFS CLI
-
-- `hdfs dfs -ls`
-- `hdfs dfs -put <fileName>`
-- `hdfs dfs -cat <fileLocation/fileName>`
-- `hdfs dfs -mv fileName fileNewName`
-- `hdfs dfs -rm <fileName>`
-- `hdfs dfs -mkdir myDir`
+<pre>
+hdfs dfs -ls                              # List Files
+hdfs dfs -put <fileName>                            # Copy
+hdfs dfs -cat <fileLocation/fileName>                            # Print content on screen
+hdfs dfs -mv fileName fileNewName         # Move / Rename
+hdfs dfs -rm -r <fileName>                          # Delete
+hdfs dfs -mkdir myDir                     # Make Directory
+hdfs dfs -du                              # Display Sizes of file
+hdfs dfs -count                           # Display Sizes of file
+</pre>
 
 ### MapReduce
 
@@ -160,3 +163,7 @@ CLI Commands:
 - [YARN Execution Flow - 1](https://blog.cloudera.com/untangling-apache-hadoop-yarn-part-1-cluster-and-yarn-basics/)
 - [YARN Execution Flow - 2](http://geekdirt.com/blog/introduction-and-working-of-yarn/)
 - [Oreilly YARN](https://www.oreilly.com/library/view/hadoop-the-definitive/9781491901687/ch04.html)
+
+### High availability Cluster Implementation
+
+![](sections/resources/HadoopClusterImplemenation.png)

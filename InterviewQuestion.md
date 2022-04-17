@@ -37,3 +37,32 @@ val newRd = myRdd.mapPartitions(partition => {
 ```
 18. [Wide vs Narrow Transformation](Spark.md/#narrow-vs-wide-transformation)
 19. [In which case Wide Transformation doesn't shuffle data?](https://stackoverflow.com/a/43753997)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Case Study:
+
+Problem Statement: PV Consulting is one of the top consulting firms for big data projects. They mostly help big and small companies to analyze their data.
+For Spark and Hadoop MR application, they started using YARN as a resource manager. Your task is to provide the following information for any job which is submitted to YARN using YARN console and YARN Cluster UI:
+
+Who has submitted the job?
+To which YARN queue is a job submitted?
+How much time did it take to finish the job?
+List of all running jobs on YARN
+How to kill a job using YARN?
+Check logs using YARN
+Objective: To understand how we can monitor the submitted job on Yarn.
