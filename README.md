@@ -25,9 +25,10 @@ Big data processing is just computation of iterative algorithms. Below is differ
 
 [Sample Code Flow](https://cm.engineering/10-tips-in-writing-a-spark-job-in-scala-cc837149a173)
 
-- Spark uses the Hadoop MapReduce distributed computing framework as its foundation. Spark was intended to improve on several aspects of the MapReduce project, such as performance and ease of use while preserving many of MapReduce's benefits.
+- Spark uses the MapReduce distributed computing framework as its foundation. Spark was intended to improve on several aspects of the MapReduce project, such as performance and ease of use while preserving many of MapReduce's benefits.
 - Spark needs a lot of RAM for computation purposes, hence we should prefer it for AI/ML or streaming real time data
 - Hadoop writes data to disk hence should be preferred for batch applications
+- Hadoop is a storage and computation system whereas Spark is a computation system. Companies use Spark with Hadoop as storage system
 
 <a href="https://phoenixnap.com/kb/hadoop-vs-spark/" target="_blank">Spark vs Hadoop Detailed comparison</a>
 

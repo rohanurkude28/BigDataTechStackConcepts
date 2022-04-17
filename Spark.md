@@ -59,6 +59,10 @@
 - **Spark Streaming - Micro Batch processing DStream (Batch Interval), each batch represents a RDD,** 
 - Spark Structured Streaming - Polls data after some duration, received data is triggered and appended in continuous flow, Dataframes are more optimised
 
+### Spark Working Steps
+
+![](sections/resources/SparkSteps.png)
+
 ## Lineages
 
 - Computation on RDDs are represented as lineage graph; a Directed Acyclic Graph (DAG) representing the computation done on the RDD
@@ -426,7 +430,7 @@ coalesceNumbers.count()
 ### Spark Submit options
 
 ```editorconfig
-"--deploy-mode","cluster",                                                                  #YARN mode ; could be client or cluster
+"--deploy-mode" , "cluster",                                                                  #YARN mode ; could be client or cluster
 "--conf", "spark.yarn.executor.memoryOverhead=1500",                                        #the memory Spark wants to use in each executor for persisting data like Java String literals,etc.
 "--conf", "spark.default.parallelism=1024",                                                 #Number of RDD partitions that the entire input (our EC source tiles) gets divided into.
 "--conf", "spark.rdd.compress=true",                                                           
