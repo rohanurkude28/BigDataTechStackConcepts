@@ -6,7 +6,7 @@
 - Execution engine like MapReduce (Fault tolerant)
 - In Memory Execution (Keeps all data immutable and in-memory)
 - Sql Support
-- Can read write data from any platform eg RDBMS, Datewarehouse, NoSql, SAP, MainFrame, Saleforce 
+- Can read write data from any platform e.g. RDBMS, Data-Warehouse, NoSql, SAP, MainFrame, Salesforce 
 - Spark is a processing engine runs on Hadoop , HDFS primary storage, YARN cluster manager 
 - Hadoop different tools - Pig (Scripting), Hive (SQL), Mahout(ML), Oozie(Workflow)
 - Spark - Spark streaming, SQL, Mlib, GraphX, Spark Core (Execution Engine - RDD for batch processing)
@@ -16,13 +16,13 @@
 
 
 
-Terminologies
+### Terminologies
 
 - **RDD (Resilient Distributed Datasets)** : RDD is Spark’s core abstraction as a distributed collection of objects. It is an Immutable dataset which cannot change with time. This data can be stored in memory or disk across the cluster. The data is logically partitioned over the cluster. It offers in-parallel operation across the cluster.As RDDs cannot be changed it can be transformed using several operations. Those are Transformation and Action operations. Furthermore, RDDs are fault Tolerant in nature. If any failure occurs it can rebuild lost data automatically through lineage graph [DAG] . 
 - **Partitions** : To speed up the data processing, term partitioning of data comes in. Basically, Partition means logical and smaller unit of data. Partitioning of data defines as to derive logical units of data. 
 - **Cluster Manager** :Cluster manager runs as an external service which provides resources to each application. This is possible to run Spark on the distributed node on Cluster. Spark supports following cluster managers. First is Apache Spark Standalone cluster manager, the Second one is Apache Mesos while third is Hadoop Yarn. Hence, all cluster managers are different on comparing by scheduling, security, and monitoring. As a matter of fact, each has its own benefits. No doubt, We can select any cluster manager as per our need and goal. 
 - **Worker Node** : A worker node refers to a slave node. Actually, any node which can run the application across the cluster is a worker node. In other words, any node runs the program in the cluster is defined as worker node. 
-- **Executor** : Any application can have its own executors. These are generally present at worker nodes which implements the task. In other words, as any process activates for an application on a worker node. That executes tasks and keeps data in-memory or disk storage over them. 
+- **Executor** : An executor is a single JVM process which is launched for an application on a worker node. Executor runs tasks and keeps data in memory or disk storage across them. Each application has its own executors. A single node can run multiple executors and executors for an application can span multiple worker nodes. An executor stays up for the duration of the Spark Application and runs the tasks in multiple threads. The number of executors for a spark application can be specified inside the SparkConf or via the flag –num-executors from command-line. 
 - **Task** : A Task is a unit of work that is sent to any executor. 
 - **Stage** : Each job is divided into small sets of tasks which are known as stages. 
 - **Driver Program** : The driver program is the process running the main() function of the application. It also creates the SparkContext. This program runs on a master node of the machine. In the meantime, it also declares transformations and actions on data RDDs. 
@@ -31,6 +31,7 @@ Terminologies
 - **Data Frame** : It is an immutable distributed data collection, like RDD. We can organise data into names, columns, tables etc. in the database. This design makes large datasets processing even easier. It allows developers to impose distributed collection into a structure and high-level abstraction. 
 - **Datasets** : To express transformation on domain objects, Datasets provides an API to users. It also enhances the performance and advantages of robust Spark SQL execution engine. 
 - **Spark Context** : Spark context holds a connection with Spark cluster manager. While Co-ordinated by it, applications run as an independent set of processes in a program.
+
 
 ### Spark Architecture
 
@@ -53,10 +54,10 @@ Terminologies
 - Fault tolerant 
 - Integration with other libraries
 
-- **Spark Streaming (RDDs) uses Java Serialisation which helps in catchpoint (restart in case of failure), but when there is upgrade it risks backward compatibility.** 
+- **Spark Streaming (RDDs) uses Java Serialisation which helps in catch-point (restart in case of failure), but when there is upgrade it risks backward compatibility.** 
 - Hence, Spark Structured Streaming(Dataset and dataframes) was introduced.
 - **Spark Streaming - Micro Batch processing DStream (Batch Interval), each batch represents a RDD,** 
-- Spark Structured Streaming - Polls data after some duration, recevied data is triggered and appended in continous flow, Dataframes are more optimised
+- Spark Structured Streaming - Polls data after some duration, received data is triggered and appended in continuous flow, Dataframes are more optimised
 
 ## Lineages
 
@@ -69,7 +70,7 @@ Terminologies
 - Its set of edges and vertices, vertices represent RDDs and edges represent operation to be performed on RDDs
 - Every edge directs from earlier to later in sequence
 - On calling of _Action_ , created DAG is submitted to DAG scheduler which further splits graph into stages of the task based on the demarcation of shuffling, new stages is created based on the data shuffling requirement.
-- Using DAG we can go any deep dive into whats happening in each stage. Scheduler splits the spark RDD into various stages based on transformation applied Narrow vs Wide.
+- Using DAG we can go any deep dive into what's happening in each stage. Scheduler splits the spark RDD into various stages based on transformation applied Narrow vs Wide.
 - Each Stage has multiple tasks, these stages are based on partition of RDDs, so that same computation can be performed in parallel.
 
 [Apache Spark’s DAG and Physical Execution Plan](https://www.tutorialkart.com/apache-spark/dag-and-physical-execution-plan/)
@@ -110,6 +111,17 @@ spark.newSession()
 spark.sparkContext.parallelize
 ```
 
+### Driver vs Executor
+
+- **Driver** is a Java process.The main() method of our program runs in the Driver process. It creates SparkSession or SparkContext.Conversion of the user code into Task (transformation and action).Helps to create the Lineage, Logical Plan and Physical Plan.Once the Physical Plan is generated, the Driver schedules the execution of the tasks by coordinating with the Cluster Manager.Keeps track of the data (in the form of metadata) which was cached (persisted) in Executor’s (worker’s) memory.
+- **Executor** is just CPU and RAM. Executor resides in the Worker node.
+
+[How to know which piece of code runs on driver or executor?](https://codeutility.org/apache-spark-how-to-know-which-piece-of-code-runs-on-driver-or-executor-stack-overflow/)
+
+### Executor vs Executor Core
+
+- **Executor** - _Refer to terminologies section above_.
+- **Executor Cores** is the no. thread started by container, tied to the executor. A core is a basic computation unit of CPU and a CPU may have one or more cores to perform tasks at a given time. The more cores we have, the more work we can do. In spark, this controls the number of parallel tasks an executor can run.
 
 ### RDD (Resilient Distributed Dataset)
 
@@ -138,19 +150,19 @@ spark.sparkContext.parallelize
 
 - Parallel Collection RDD - is a RDD of a collection of elements with number of partitions. **sc.parallelize(1 to 10, 2)**
 - Shuffled RDD - is a key value pair that represents shuffle step in RDD lineage. These RDDs are created after RDD transformations that trigger data shuffling across nodes in cluster
-- Pair RDD -  is a key value pair where in similar operations needs to be performed on each keys. **rdd.map(x => (x.1,x.2))**
+- Pair RDD -  is a key value pair where in similar operations needs to be performed on each key. **rdd.map(x => (x.1,x.2))**
 - Hadoop RDD - provide core functionalities for reading data stored in HDFS, SparkContext: Hadoop file, text file, sequence file
 
 
 ### Operations in RDD
 
 Two types of data ops:
-1. Transformations will return a new RDD and are **lazy ops** . eg: filter, map, flatMap, distinct. union, intersection, subtract, cartesiN
+1. Transformations will return a new RDD and are **lazy ops** . eg: filter, map, flatMap, distinct. union, intersection, subtract, cartesian
 2. Action will return a value and are **eager ops** .  eg: collect, count, take, reduce, foreach. takeSample, takeOrdered, saveAsTextFile, saveAsSequenceFile
 
-**foreach is a eager action but return unit hence it executes on executor and not driver whereas take returns a type A hence it executes on driver Node**
+**foreach is an eager action but return unit hence it executes on executor and not driver whereas take returns a type A hence it executes on driver Node**
 
-Dataframes - is a Dataset organised into named columns,  equivalent to a RDBMS table, with richer optimisation underhood.
+Dataframes - is a Dataset organised into named columns,  equivalent to a RDBMS table, with richer optimisation under-hood.
 
 
 ### Caching and Persist
@@ -174,7 +186,7 @@ Persist : Persistence can be customised with this method. Pass the storage level
 
 ![](sections/resources/CachingNPersistLevels.png)
 
-- Cache is warpper on top of Persist API `Cache() = Persist(StaorageLevel.MEMORY_ONLY)`
+- Cache is wrapper on top of Persist API `Cache() = Persist(StaorageLevel.MEMORY_ONLY)`
 - By Default Cache is in Memory and is a deserialized object
 - Spark UI -> Storage (Fraction Memory -> Percentage of data stored, Size on memory, Size on disk)
 
@@ -199,7 +211,7 @@ val df6 = df5.withColumn("C6",rand()).join(df1,"C5")
 TODO Create A Mapping of Transformations and Actions with clauses:
 
 - sortWith 
-- aggregate ![](sections/resources/AggregateParallel.png) in accumulator we would waste lot of memory and time to carry all unrelated fields 
+- aggregate ![](sections/resources/AggregateParallel.png) in accumulator we would waste a lot of memory and time to carry all unrelated fields 
 - groupByKey  - index (Transformation - lazy)
 - reduceByKey - more efficient than groupByKey and then reduce     (Transformation - lazy)
 - countByKey  - no of elements per key  (Transformation - lazy)
@@ -224,6 +236,8 @@ TODO Create A Mapping of Transformations and Actions with clauses:
 ### ReduceByKey
 
 ![](sections/resources/ReduceByKey-ClusterDataDistribution.png)
+
+### Narrow vs Wide Transformation
 
 Transformation causes shuffle. There are two kinds
 - Narrow : when each partition of the parent RDD is used by at most one partition of the child RDD. (Fast, No shuffle, Optimisation like pipelining possible)
@@ -273,7 +287,7 @@ Three main APIs:
 
 Two specialised backend components:
 - Catalyst, query optimiser
-- Tungsten, off-heap serialiser
+- Tungsten, off-heap serializer
 
 ### Data Frames
 
@@ -396,10 +410,10 @@ coalesceNumbers.count()
 #### Executor tuning
 - Leave aside one core per node : For several daemons running in background like NameNode, Secondary NameNode, DataNode, JobTracker, Task Tracker, Application master etc.
 - HDFS Throughput : HDFS client has trouble with tons of concurrent threads, Too many tasks per executor causes Huge GC overheads. It was observed HDFS achieves full write throughput with **5 cores/tasks per executor**
-- YARN Application Master : 1GB and 1 Executor for AM
+- YARN Application Master : 1 GB and 1 Executor for AM
 - Memory Overhead : Full memory requested to yarn per executor = spark-executor-memory + spark-yarn-executor-memoryOverhead
-  spark-yarn-executor-memoryOverhead = Max(384MB, 7% of spark-executor-memory)
-  eg : IF we request for 20GB per executor, AM will get 20GB + memoryOverhead = 20 + 7% of 20 = 23 GB
+  spark-yarn-executor-memoryOverhead = Max(384 MB, 7% of spark-executor-memory)
+  eg : IF we request for 20 GB per executor, AM will get 20 GB + memoryOverhead = 20 + 7% of 20 = 23 GB
 - Running executor with too much memory often results in excessive GC delays
 - Running tiny executors throws away benefits that comes from running multiple JVM 
 
@@ -426,3 +440,6 @@ coalesceNumbers.count()
 "--class","com.here.hdmap.filters.acf.earthcore.Main",
 "s3://here-ngmp-dev-hdmap/shreya-test400/acf400/hdmap-filters-acf-earthcore-impl-1.0.0-SNAPSHOT-jar-with-dependencies.jar"
 ```
+
+
+//TODO: Modify using https://github.com/rohgar/scala-spark-4/wiki/Wide-vs-Narrow-Dependencies#visual-narrow-dependencies-vs-wide-dependencies 

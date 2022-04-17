@@ -21,6 +21,8 @@ Big data processing is just computation of iterative algorithms. Below is differ
 
 ![](sections/resources/BigDataIteration.png)
 
+![](sections/resources/HadoopEcoSystem.png)
+
 [Sample Code Flow](https://cm.engineering/10-tips-in-writing-a-spark-job-in-scala-cc837149a173)
 
 - Spark uses the Hadoop MapReduce distributed computing framework as its foundation. Spark was intended to improve on several aspects of the MapReduce project, such as performance and ease of use while preserving many of MapReduce's benefits.
@@ -44,3 +46,11 @@ Distribution introduces two issues
 - Latency : certain operation has higher latency than other operations due to network latency
 
 ![](sections/resources/LatencyNumbers.png)
+
+
+Jargon to use:
+
+- Distributed System (45 seconds to process 100 machines 1 TB of data, 4 I/O Channel & 100Mbps/machine)
+- Parallel Processing
+- Commodity vs Enterprise hardware
+- 
