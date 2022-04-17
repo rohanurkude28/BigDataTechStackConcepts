@@ -1,9 +1,39 @@
 # Spark
 
-1. [What is Spark?](Spark.md/#spark)
-2. [Why Spark is faster than Hadoop ?](README.md/#spark-vs-hadoop)
-3. [Language to choose while working on spark?](README.md/language-in-spark)
-4. [Explain Spark Architecture?](Spark.md/#spark-architecture)
-5. [What are latency problems in distributed systems?](README.md/#latency-issue-in-distributed-systems)
-6. [Spark Context vs Spark Session?](Spark.md/#spark-context-vs-spark-session)
-7. 
+1. [Hadoop vs Spark?](https://www.ibm.com/cloud/blog/hadoop-vs-spark)
+2. [What is Spark?](Spark.md/#spark)
+3. [Why Spark is faster than Hadoop ?](README.md/#spark-vs-hadoop)
+4. [Language to choose while working on spark?](README.md/#language-in-spark)
+5. [Explain Spark Architecture?](Spark.md/#spark-architecture)
+6. [What are latency problems in distributed systems?](README.md/#latency-issue-in-distributed-systems)
+7. [Spark Context vs Spark Session?](Spark.md/#spark-context-vs-spark-session)
+8. [YARN Client Mode vs Cluster Mode](Hadoop.md/#yarn-client-mode-vs-cluster-mode)
+9. [Driver Vs Executor](Spark.md/#driver-vs-executor)
+10. [Executor Vs Executor Core](Spark.md/#executor-vs-executor-core)
+11. [Logical vs Physical Plan Spark](https://blog.knoldus.com/understanding-sparks-logical-and-physical-plan-in-laymans-term/)
+12. [What is a RDD?](Spark.md/#rdd-resilient-distributed-dataset)
+13. [What makes spark fault tolerant?](Spark.md/#lineages)
+14. Yarn vs Spark Fault Tolerance : 
+- YARN manages failure of resources/container/machine it manages that. Assigns resources to job and schedules job on different machine. Initially if Application Manager fails Resource manager use to kill all the container, but recently YARN has capability to rebind running container to newly launched Application Manager.
+- Spark is fault tolerant in terms of execution. It makes plan of data and executes it , in cases of failure it retries by creating data again using lineage.
+15. [Transformations vs Actions](Spark.md/#operations-in-rdd)
+16. Map vs FlatMap
+- Map is One to One operation.
+- Flatmap is One to Many Operation.
+17. [Map vs MapPartition](https://sparkbyexamples.com/spark/spark-map-vs-mappartitions-transformation/)
+```scala
+val newRd = myRdd.mapPartitions(partition => {
+  // Creates a db connection per partition. This object will be cached inside each executor JVM. For the first time, the //connection will be created and hence forward, it will be reused. 
+  // Very useful for streaming apps
+  val connection = new DbConnection
+
+  val newPartition = partition.map(record => {
+    readMatchingFromDB(record, connection)
+  }).toList // consumes the iterator, thus calls readMatchingFromDB 
+
+  connection.close()
+  newPartition.iterator // create a new iterator
+})
+```
+18. [Wide vs Narrow Transformation](Spark.md/#narrow-vs-wide-transformation)
+19. [In which case Wide Transformation doesn't shuffle data?](https://stackoverflow.com/a/43753997)
