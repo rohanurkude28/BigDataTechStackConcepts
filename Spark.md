@@ -233,13 +233,24 @@ TODO Create A Mapping of Transformations and Actions with clauses:
 - Shuffles can be an enormous hit to performance because it means that Spark has to move a lot of its data around the network and remember how important latency is.
 - A Shuffle can occur when the resulting RDD depends on other elements from same RDD or another RDD
 
-### GroupByKey
+### GroupByKey vs ReduceByKey
+
+GroupByKey
 
 ![](sections/resources/GroupByKey-ClusterDataDistribution.png)
 
-### ReduceByKey
+ReduceByKey
 
 ![](sections/resources/ReduceByKey-ClusterDataDistribution.png)
+
+
+### CombineByKey vs ReduceByKey
+
+Reduce by key internally calls combineBykey. Hence the basic way of task execution is same for both.
+
+The choice of CombineByKey over reduceBykey is when the input Type and output Type is not expected to be the same. So combineByKey will have a extra overhead of converting one type to another .
+
+If the type conversion is omitted there is no difference at all .
 
 ### Narrow vs Wide Transformation
 
@@ -299,6 +310,7 @@ Two specialised backend components:
 - Dataframes, are conceptually RDDs full of records with a know schema (Kind of like table)
 - Dataframes are Untyped
 - Transformations are Untyped
+- primary interface to create DataFrame is DataFrameReader
 
 Ways to create a dataframe:
 - From existing RDD .toDF
@@ -446,4 +458,5 @@ coalesceNumbers.count()
 ```
 
 
-//TODO: Modify using https://github.com/rohgar/scala-spark-4/wiki/Wide-vs-Narrow-Dependencies#visual-narrow-dependencies-vs-wide-dependencies 
+//TODO: Modify using https://github.com/rohgar/scala-spark-4/wiki/Wide-vs-Narrow-Dependencies#visual-narrow-dependencies-vs-wide-dependencies
+//TODO: FileAlreadyExistsException way out

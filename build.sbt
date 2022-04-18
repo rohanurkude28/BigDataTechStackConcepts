@@ -9,8 +9,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "BigDataTechStackConcepts",
     libraryDependencies += scalaTest % Test,
-    libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.6.5"
+    libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.6.5",
+    libraryDependencies ++= Seq("org.apache.spark" %% "spark-core" % "2.4.8","org.apache.spark" %% "spark-sql" % "2.4.8")
 
-)
-
-// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
+  )
