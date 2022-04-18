@@ -37,6 +37,8 @@ val newRd = myRdd.mapPartitions(partition => {
 ```
 18. [Wide vs Narrow Transformation](Spark.md/#narrow-vs-wide-transformation)
 19. [In which case Wide Transformation doesn't shuffle data?](https://stackoverflow.com/a/43753997)
+20. [What is Spark Dataframe internally?](Spark.md/#dataSets)
+21. What is rimary interface to create DataFrame is? DataFrameReader
 
 
 
