@@ -143,7 +143,7 @@ CLI Commands:
 
 ### How Does YARN Work?
 
-![](sections/resources/YARN Workflow.png)
+![](sections/resources/YARNWorkflow.png)
 
 - The ResourceManager instructs a NodeManager to start an Application Master for this request, which is then started in a container.
 - The newly created Application Master registers itself with the RM. The Application Master proceeds to contact the HDFS NameNode and determine the location of the needed data blocks and calculates the amount of map and reduce tasks needed to process the data.
