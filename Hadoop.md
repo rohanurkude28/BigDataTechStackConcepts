@@ -143,6 +143,8 @@ CLI Commands:
 
 ### How Does YARN Work?
 
+![](sections/resources/YARN Workflow.png)
+
 - The ResourceManager instructs a NodeManager to start an Application Master for this request, which is then started in a container.
 - The newly created Application Master registers itself with the RM. The Application Master proceeds to contact the HDFS NameNode and determine the location of the needed data blocks and calculates the amount of map and reduce tasks needed to process the data.
 - The Application Master then requests the needed resources from the RM and continues to communicate the resource requirements throughout the life-cycle of the container.
@@ -160,7 +162,7 @@ CLI Commands:
 -  **Cluster Mode** : 	In cluster mode, the driver runs on one of the worker nodes, and this node shows as a driver on the Spark Web UI of your application. cluster mode is used to run production jobs.
 
 
-- [YARN Execution Flow - 1](https://blog.cloudera.com/untangling-apache-hadoop-yarn-part-1-cluster-and-yarn-basics/)
+- [YARN](https://www.youtube.com/watch?v=knssVnPdJMA)
 - [YARN Execution Flow - 2](http://geekdirt.com/blog/introduction-and-working-of-yarn/)
 - [Oreilly YARN](https://www.oreilly.com/library/view/hadoop-the-definitive/9781491901687/ch04.html)
 
