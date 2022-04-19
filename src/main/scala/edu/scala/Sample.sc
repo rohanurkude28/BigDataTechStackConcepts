@@ -38,3 +38,16 @@ evaluatedExpr(3)
 
 def curriedSum(a:Int)(b:Int)={a+b}
 val sum = curriedSum(1)(_)
+
+sum(5)
+
+
+
+val optionalList : List[Option[String]] = List(Some("Rohan"),Some("Ali"),Some("Prabhjot"),Some("Shilpa"),Option.empty[String])
+
+optionalList.flatten
+
+val optionalList2 : List[Option[String]] = List(Some("Satheesh"),Some("Kartik"),Some("Arun"))
+val list : List[List[Option[String]]] = List(optionalList,optionalList2)
+
+list.flatMap(_.flatten)

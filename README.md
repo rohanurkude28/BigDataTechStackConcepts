@@ -7,6 +7,8 @@
 - 
 
 [How to Pass the Engineering Interview in 2021](https://davidbyttow.medium.com/how-to-pass-the-engineering-interview-in-2021-45f1b389a1)
+[Data Engineering Road Map](https://www.youtube.com/watch?v=SpaFPPByOhM&t=64s)
+
 
 Below things are considered to classify data under Big data :
 1. Volume - 2314 Exabyte of data is collected annually
