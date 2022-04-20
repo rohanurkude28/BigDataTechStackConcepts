@@ -1,3 +1,7 @@
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.Try
+
 def multiplyAndCheckEven(a: Int, b: Int, checkEven: (Int => Boolean)) = {
   checkEven(a * b)
 }
@@ -51,3 +55,29 @@ val optionalList2 : List[Option[String]] = List(Some("Satheesh"),Some("Kartik"),
 val list : List[List[Option[String]]] = List(optionalList,optionalList2)
 
 list.flatMap(_.flatten)
+
+
+val aSuccessfulComputation = Try(22) // Success(22)
+val aModifiedComputation = aSuccessfulComputation.map(_ + 1) // Success(23)
+val badMath = (x: Int) => Try(x / 0) // Int => Try[Int]
+
+val aFailedComputation = aSuccessfulComputation.flatMap(badMath) // Failure(ArithmeticException)
+val aRecoveredComputation = aFailedComputation.recover {
+  case _: ArithmeticException => -1
+}  // Success(-1)
+
+val aChainedComputation = for {
+  x <- aSuccessfulComputation
+  y <- aRecoveredComputation
+} yield x + y // Success(21)
+
+implicit val globalExecutionContext: ExecutionContext = ExecutionContext.global
+
+def a = Future { Thread.sleep(2000); 100 }
+def b = Future { Thread.sleep(2000); throw new NullPointerException }
+
+val a =Await.ready(a, Duration.Inf) // Future(Success(100))
+Await.ready(b, Duration.Inf) // Future(Failure(java.lang.NullPointerException))
+
+Await.result(a, Duration.Inf) // 100
+Await.result(b, Duration.Inf) // crash with java.lang.NullPointerException
