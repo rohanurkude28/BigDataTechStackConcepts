@@ -1046,9 +1046,7 @@ given listFunctor as Functor[List] {
   override def map[A, B](container: List[A])(f: A => B) = container.map(f)
 }
 
-def do10x[C[_]](container: C[Int])(using
-functor: Functor[C]
-) = functor.map(container)(_ * 10)
+def do10x[C[_]](container: C[Int])(using functor: Functor[C]) = functor.map(container)(_ * 10)
 
 do10x(List(1, 2, 3)) //Injection of functor do10x(List(1,2,3))(using listFunctor) 
 ```
@@ -1060,6 +1058,59 @@ do10x(List(1, 2, 3)) //Injection of functor do10x(List(1,2,3))(using listFunctor
 - Concurrency is about dealing with a lot of things at once. Shared resource is to be accessed/updated OR Multiple tasks
   needs to coordinate. To deal with concurrency we can use - Akka
 
+## Futures
+
+- A Future acts as a placeholder object for a value that may not yet exist. It gives us a simple way to run a computation concurrently. A Future starts running concurrently upon creation and returns a result at some point in the future.
+- ` import scala.concurrent.ExecutionContext.Implicits.global` for execution context
+
+```scala
+import scala.concurrent.ExecututionContext.Implicits.global
+
+def fetchDataFrom(url : String, waitTime : Long = 0L) : Future[String] = Future {
+  Thread.sleep(waitTime)
+  Source.fromURL(url).getLines().mkString
+}
+val fut = fetchDataFrom("https://www.google.com")
+
+val completedFuture: Future[String] = Await.ready(fut, 2 seconds) //Blocking
+completedFuture.value match {
+  case Some(result) => result.isSuccess
+  case _ => false
+}
+
+
+```
+### Difference Await.ready and Await.result
+
+```scala
+def a = Future { Thread.sleep(2000); 100 }
+def b = Future { Thread.sleep(2000); throw new NullPointerException }
+
+Await.ready(a, Duration.Inf) // Future(Success(100))    
+Await.ready(b, Duration.Inf) // Future(Failure(java.lang.NullPointerException))
+
+Await.result(a, Duration.Inf) // 100
+Await.result(b, Duration.Inf) // crash with java.lang.NullPointerException
+```
+
+### Difference futures.onComplete vs Await.result
+
+futures.onComplete runs on some arbitrary (unspecified) thread in the ExecutionContext, whereas Await.result runs on the current thread, and blocks it until it completes or the specified timeout is exceeded. The first is non-blocking, the second is blocking
+ 
+
+### Failures in Future
+
+```scala
+
+ Try(Await.result(futureOfResult, Duration.create(10,SECONDS))) match {
+            case Success(results) => {
+              //do something
+            }
+            case Failure(e) => {
+              //log something
+            }
+ }
+```
 ## Akka
 
 - Akka is a open-source library or a toolkit written in Scala to create concurrent, distributed and fault-tolerant
@@ -1080,39 +1131,62 @@ do10x(List(1, 2, 3)) //Injection of functor do10x(List(1,2,3))(using listFunctor
   remote capabilities and addresses.
 - It is also the entry point for creating or looking up actors.
 
+Inside an actor system, an actor can only perform the following actions:
+- Send a communication to itself or other actors
+- Create new actors
+- Specify a replacement behavior
+
+Akka:
 ```scala
+case class Greeting(name:String)
 
-sealed trait BankAccountMessage
+class GreetingActor extends Actor{
+  override def receive: Receive = {
+    case Greeting(name) => {
+      println(s"Hello $name")
+    }
+  }
+}
 
-case class Deposit(amount: Int) extends BankAccountMessage
+object Test{
+  def main(args: Array[String]): Unit = {
+    val system = ActorSystem("GreetingActor")
+    val greeter = system.actorOf(Props[GreetingActor],name="greeter")
+    greeter ! Greeting("Rohan")
+    //system.terminate()
+  }
+}
+```
 
-case class Withdraw(amount: Int) extends BankAccountMessage
-
-case object PrintBalance extends BankAccountMessage
-
-import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
-
-object Main extends App {
-   /*State is also part of the behaviour, so if a message wants to make a change to state, then you need to return a new behaviour with modified state.*/
-  def behavior(balance: Int): Behavior[BankAccountMessage] = Behaviors.receiveMessage {
-    case Deposit(amount) => behavior(balance + amount)
-    case Withdraw(amount) => behavior(balance - amount)
-    case PrintBalance =>
-      println(s"balance = $balance")
-      behavior(balance)
+Typed Akka:
+```scala
+object AkkaTyped extends App {
+  object StringActor {
+    def apply() : Behavior[String] = Behaviors.setup { context =>
+      println("Before receiving messages")
+      Behaviors.receiveMessage[String] {
+        case "stop" =>
+          Behaviors.stopped
+        case "restart" =>
+          throw new IllegalStateException("restart actor")
+        case message =>
+          println(s"received message $message")
+          Behaviors.same
+      }.receiveSignal {
+        case(_, PostStop) =>
+          println(s"stopping actor")
+          Behaviors.stopped
+        case (_, PreRestart) =>
+          println("Restarting Actor")
+          Behaviors.stopped
+      }
+    }
   }
 
-  /*Creating ActorSystem will require a guardian behaviour. With guardian behaviour, actor system creates a top level (system level) actor and  you can send messages to the guardian actor which will then create child actors at user level. Akka recommends creating all business related actors at user level. This is because if a system actor crashes due an exception, entire actor system will crash destroying all other system and user actors. */
-  val actorSystem = ActorSystem(Behaviors.empty, name = "MyBankActorSystem")
-  val account1: ActorRef[BankAccountMessage] = actorSystem.systemActorOf(behavior(balance = 0), "account1")
-  println(account1)
-
-  account1 ! PrintBalance
-  account1 ! Deposit(200)
-  account1 ! Withdraw(50)
-  account1 ! PrintBalance
-
-  actorSystem.terminate()
+  val stringBehaviour: Behavior[String] = Behaviors.supervise(StringActor()).onFailure[IllegalStateException](SupervisorStrategy.restart)
+  val stringActor = ActorSystem(stringBehaviour,"StringActor")
+  stringActor ! "Hello World"
+  // stringActor ! "stop" //In Case we want stop after processing
+  stringActor ! "restart"
 }
 ```
