@@ -7,7 +7,7 @@ object RepartitionVsCoalesce {
     val spark = CommonUtility.getSparkSession()
 
     val rdd = spark.sparkContext.parallelize(Range(0,20))
-    println("From local[5]"+rdd.partitions.size)
+    println("From local[5] "+rdd.partitions.size)
 
     val rdd1 = spark.sparkContext.parallelize(Range(0,20), 6)
     println("parallelize : "+rdd1.partitions.size)

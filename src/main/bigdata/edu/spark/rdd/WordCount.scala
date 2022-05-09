@@ -1,7 +1,9 @@
 package edu.spark.rdd
 
 import edu.spark.CommonUtility
+import org.apache.spark.Partitioner
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SaveMode
 
 object WordCount {
   def main(args: Array[String]): Unit = {
@@ -45,7 +47,7 @@ object WordCount {
 
     //Action - reduce
     val totalWordCount = rdd6.reduce((a,b) => (a._1+b._1,a._2))
-    println("dataReduce Record : "+totalWordCount._1)
+    println("dataReduce Record : "+totalWordCount)
     //Action - take
     val data3 = rdd6.take(3)
     data3.foreach(f=>{
@@ -59,6 +61,22 @@ object WordCount {
     })
 
     //Action - saveAsTextFile
-    rdd5.saveAsTextFile("src/main/resources/output/wordCount/")
+    rdd5.repartition(1).saveAsTextFile("src/main/resources/output/wordCount/")
+
+    val partitionData = rdd5.partitionBy(new CustomPartition(4))
+    partitionData.saveAsTextFile("src/main/resources/output/wordCountCustom/")
+  }
+
+  class CustomPartition(numPart : Int) extends Partitioner{
+    override def numPartitions: Int = numPart
+
+    override def getPartition(key: Any): Int = {
+      key.toString toUpperCase match {
+        case "THE" => 0
+        case "IS" => 1
+        case "FOR" => 2
+        case _ => 3
+      }
+    }
   }
 }

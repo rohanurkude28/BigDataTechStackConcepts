@@ -8,12 +8,9 @@
 Underneath Code can be viewed with below commands
 
 ```scala
-scalac - Xprint:
-all *
-.scala //For viewing how syntactic sugar is handled
-scalap className //How code looks after compilation using bytecode
-  javap className //How equivalent Java code looks after compilation
-
+scalac - Xprint:all *.scala //For viewing how syntactic sugar is handled
+scalap className //How code looks after compilation using bytecode 
+javap className //How equivalent Java code looks after compilation
 ```
 
 ## <a name='TOC'>Table of Contents</a>
