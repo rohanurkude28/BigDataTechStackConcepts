@@ -38,7 +38,13 @@ val newRd = myRdd.mapPartitions(partition => {
 18. [Wide vs Narrow Transformation](Spark.md/#narrow-vs-wide-transformation)
 19. [In which case Wide Transformation doesn't shuffle data?](https://stackoverflow.com/a/43753997)
 20. [What is Spark Dataframe internally?](Spark.md/#dataSets)
-21. What is rimary interface to create DataFrame is? DataFrameReader
+21. What is primary interface to create DataFrame is? DataFrameReader
+22. What is spark glom ? rdd.glom().map - operation used for reading data in a single partition - array/matrix of data.
+23. [DF vs DS vs RDD](Spark.md/#df-vs-ds-vs-rdd)
+24. Why Data Sets are type safe? 
+25. [Window Function in Spark?](https://sparkbyexamples.com/spark/spark-sql-window-functions/)
+26. [Difference between ROW_NUMBER, RANK, DENSE_RANK and NTILE](https://coderscay.blogspot.com/2018/01/difference-between-rownumber-rank.html)
+27. [Partitions vs Bucketing](https://www.youtube.com/watch?v=BHFgd-Q2AHM&list=PL9sbKmQTkW04_MDKPE8eEwOhYD1-G0Nox&index=39)
 
 
 

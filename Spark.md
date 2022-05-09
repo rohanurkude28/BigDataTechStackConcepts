@@ -423,6 +423,15 @@ coalesceNumbers.count()
 
 ### Spark Performance Tuning : TODO
 
+1. Prefer mapPartition over map when loading db configs etc
+2. Prefer reduceByKey over groupByKey
+3. Prefer Tree reduce over reduceByKey
+4. While joining two tables and one of them is small, then prefer broadcast join, reduces amount of shuffle data and IO Ops
+5. User kryo serialiser
+6. Handle Skewness (Data not split in a right manner)
+7. Right Configuration
+8. 
+
 #### Executor tuning
 - Leave aside one core per node : For several daemons running in background like NameNode, Secondary NameNode, DataNode, JobTracker, Task Tracker, Application master etc.
 - HDFS Throughput : HDFS client has trouble with tons of concurrent threads, Too many tasks per executor causes Huge GC overheads. It was observed HDFS achieves full write throughput with **5 cores/tasks per executor**

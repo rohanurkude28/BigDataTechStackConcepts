@@ -11,7 +11,10 @@ object RDDFromFile {
     val rdd = spark.sparkContext.textFile(path)
     rdd.collect.foreach(println)
 
-    val rddWhole = spark.sparkContext.wholeTextFiles(path)
+    val rddWOHeader = rdd.mapPartitionsWithIndex { (idx, iter) => if (idx == 0) iter.drop(1) else iter }
+    rddWOHeader.collect.foreach(println)
+
+    val rddWhole = spark.sparkContext.wholeTextFiles(path) //Difference : https://stackoverflow.com/a/47130451
     rddWhole.foreach(f=>{
       println(f._1+"=>"+f._2)
     })

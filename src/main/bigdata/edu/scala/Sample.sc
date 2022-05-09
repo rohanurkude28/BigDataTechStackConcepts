@@ -38,14 +38,12 @@ val isOdd = new Validator{
 val evaluatedExpr = isEven.orElse(isOdd)
 
 evaluatedExpr(3)
-
+evaluatedExpr(4)
 
 def curriedSum(a:Int)(b:Int)={a+b}
 val sum = curriedSum(1)(_)
 
 sum(5)
-
-
 
 val optionalList : List[Option[String]] = List(Some("Rohan"),Some("Ali"),Some("Prabhjot"),Some("Shilpa"),Option.empty[String])
 
@@ -76,8 +74,11 @@ implicit val globalExecutionContext: ExecutionContext = ExecutionContext.global
 def a = Future { Thread.sleep(2000); 100 }
 def b = Future { Thread.sleep(2000); throw new NullPointerException }
 
-val a =Await.ready(a, Duration.Inf) // Future(Success(100))
+Await.ready(a, Duration.Inf) // Future(Success(100))
 Await.ready(b, Duration.Inf) // Future(Failure(java.lang.NullPointerException))
 
 Await.result(a, Duration.Inf) // 100
-Await.result(b, Duration.Inf) // crash with java.lang.NullPointerException
+//Await.result(b, Duration.Inf) // crash with java.lang.NullPointerException
+
+implicit def intToStr(num: Int): String = s"The value is $num"
+println(42.toUpperCase()) // evaluates to "THE VALUE IS 42"
